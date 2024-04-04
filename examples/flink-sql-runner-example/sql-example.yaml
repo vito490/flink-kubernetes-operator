@@ -1,41 +1,92 @@
-################################################################################
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-# limitations under the License.
-################################################################################
-
 apiVersion: flink.apache.org/v1beta1
 kind: FlinkDeployment
 metadata:
-  name: sql-example
+  finalizers:
+    - flinkdeployments.flink.apache.org/finalizer
+  name: application-cluster-prod
+  namespace: event-automation
 spec:
-  image: flink-sql-runner-example:latest
-  flinkVersion: v1_16
-  flinkConfiguration:
-    taskmanager.numberOfTaskSlots: "1"
-  serviceAccount: flink
-  jobManager:
-    resource:
-      memory: "2048m"
-      cpu: 1
+  mode: native
   taskManager:
+    replicas: 3
     resource:
-      memory: "2048m"
       cpu: 1
+      memory: 4G
+  jobManager:
+    replicas: 1
+    resource:
+      cpu: 1
+      memory: 1024m
+  flinkConfiguration:
+    restart-strategy.failure-rate.failure-rate-interval: 9 min
+    execution.checkpointing.unaligned: 'false'
+    json.map-null-key.mode: DROP
+    state.backend.rocksdb.use-bloom-filter: 'true'
+    high-availability.type: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
+    restart-strategy.failure-rate.max-failures-per-interval: '10'
+    state.backend.incremental: 'true'
+    taskmanager.numberOfTaskSlots: '2'
+    state.checkpoints.num-retained: '3'
+    state.checkpoints.dir: 'file:///opt/flink/volume/flink-cp'
+    execution.checkpointing.interval: '5000'
+    state.backend.type: rocksdb
+    restart-strategy: failure-rate
+    license.license: L-HRZF-DWHH7A
+    restart-strategy.failure-rate.delay: 30 s
+    license.accept: 'true'
+    json.ignore-parse-errors: 'true'
+    license.use: EventAutomationNonProduction
+    high-availability.storageDir: 'file:///opt/flink/volume/flink-ha'
+    state.backend.rocksdb.thread.num: '10'
+    state.savepoints.dir: 'file:///opt/flink/volume/flink-sp'
+    table.exec.source.idle-timeout: 30 s
+  serviceAccount: flink
+  flinkVersion: v1_18
+  image: 'image-registry.openshift-image-registry.svc:5000/event-automation/nexi-sql-runner:1.5'
   job:
-    jarURI: local:///opt/flink/usrlib/sql-runner.jar
-    args: ["/opt/flink/usrlib/sql-scripts/simple.sql"]
-    parallelism: 1
-    upgradeMode: stateless
+    allowNonRestoredState: true
+    args:
+      - /opt/flink/usrlib/sql-scripts/statements.sql
+    jarURI: 'local:///opt/flink/usrlib/sql-runner.jar'
+    parallelism: 6
+    state: running
+    upgradeMode: savepoint
+  podTemplate:
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: pod-template
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: type
+                      operator: In
+                      values:
+                        - flink-native-kubernetes
+                topologyKey: kubernetes.io/hostname
+              weight: 80
+      containers:
+        - name: flink-main-container
+          volumeMounts:
+            - mountPath: /opt/flink/log
+              name: flink-logs
+            - mountPath: /opt/flink/volume
+              name: flink-volume
+      volumes:
+        - emptyDir: {}
+          name: flink-logs
+        - name: flink-volume
+          persistentVolumeClaim:
+            claimName: ibm-flink-pvc

@@ -1,0 +1,374 @@
+{
+  "pipelineState": {
+    "doc_type": "pipeline",
+    "version": "3.0",
+    "json_schema": "http://api.dataplatform.ibm.com/schemas/common-pipeline/pipeline-flow/pipeline-flow-v3-schema.json",
+    "id": "5220f9e6-5c32-4091-9569-44fd6639a41c",
+    "primary_pipeline": "68b2f29d-25d4-45ca-acf4-81e3ec597027",
+    "pipelines": [
+      {
+        "id": "68b2f29d-25d4-45ca-acf4-81e3ec597027",
+        "nodes": [
+          {
+            "id": "7a8a844e-e2dc-4137-9355-a84935af53c9",
+            "type": "aggregate",
+            "app_data": {
+              "node_type": "aggregate",
+              "ui_data": {
+                "label": "Valore transazioni medio e totale",
+                "image": "/images/svg/aggregate.svg",
+                "x_pos": 451.0000305175781,
+                "y_pos": 49
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "f48ad396-b97f-45d5-92d4-2458efa63063",
+                    "node_id_ref": "36122b7d-c8f7-4ebb-98b5-eb870dde7083",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "9622a6d7-523a-43b9-a806-351352d35984",
+            "type": "sink",
+            "app_data": {
+              "node_type": "sink",
+              "ui_data": {
+                "label": "Output Valori",
+                "image": "/images/svg/sink.svg",
+                "x_pos": 886,
+                "y_pos": 50
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "35bd5fef-1cc2-46ca-8202-67b79579c3ce",
+                    "node_id_ref": "7a8a844e-e2dc-4137-9355-a84935af53c9",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "36122b7d-c8f7-4ebb-98b5-eb870dde7083",
+            "type": "source",
+            "app_data": {
+              "node_type": "source",
+              "ui_data": {
+                "label": "source_1",
+                "image": "/images/svg/source.svg",
+                "x_pos": 60,
+                "y_pos": 79
+              }
+            },
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "app_data": {
+          "ui_data": {
+            "comments": []
+          }
+        },
+        "runtime_ref": ""
+      }
+    ],
+    "schemas": []
+  },
+  "contextState": {
+    "edges": [
+      {
+        "incoming": "7a8a844e-e2dc-4137-9355-a84935af53c9",
+        "outgoing": "9622a6d7-523a-43b9-a806-351352d35984"
+      },
+      {
+        "incoming": "36122b7d-c8f7-4ebb-98b5-eb870dde7083",
+        "outgoing": "7a8a844e-e2dc-4137-9355-a84935af53c9"
+      }
+    ],
+    "nodes": [
+      {
+        "viewName": "Valore transazioni medio e totale",
+        "nodeId": "7a8a844e-e2dc-4137-9355-a84935af53c9",
+        "nodeType": "aggregate",
+        "configuration": {
+          "functions": [
+            {
+              "id": "SUM_V_OP_AUTZ",
+              "name": "SUM",
+              "distinct": false,
+              "source": {
+                "column": "V_OP_AUTZ"
+              }
+            },
+            {
+              "id": "AVG_V_OP_AUTZ",
+              "name": "AVG",
+              "distinct": false,
+              "source": {
+                "column": "V_OP_AUTZ"
+              }
+            }
+          ],
+          "groupBy": [
+            {
+              "column": "ESITO"
+            }
+          ],
+          "columns": [
+            {
+              "outputColumn": "SOMMA_TRANSAZIONI",
+              "expression": "",
+              "input": {
+                "column": "SUM_V_OP_AUTZ"
+              },
+              "kind": "AGGREGATE_RESULT",
+              "aggregateFunctionId": "SUM_V_OP_AUTZ"
+            },
+            {
+              "outputColumn": "MEDIA_TRANSAZIONI",
+              "expression": "",
+              "input": {
+                "column": "AVG_V_OP_AUTZ"
+              },
+              "kind": "AGGREGATE_RESULT",
+              "aggregateFunctionId": "AVG_V_OP_AUTZ"
+            },
+            {
+              "outputColumn": "ESITO",
+              "expression": "",
+              "input": {
+                "column": "ESITO"
+              },
+              "kind": "GROUP_BY"
+            },
+            {
+              "outputColumn": "INIZIO_INTERVALLO",
+              "expression": "",
+              "input": {
+                "column": "aggregateStartTime"
+              },
+              "kind": "WINDOW_START"
+            },
+            {
+              "outputColumn": "FINE_INTERVALLO",
+              "expression": "",
+              "input": {
+                "column": "aggregateEndTime"
+              },
+              "kind": "WINDOW_END"
+            }
+          ],
+          "timeEvent": {
+            "table": "",
+            "column": "event_time"
+          },
+          "aggregationPeriod": {
+            "interval": 1,
+            "timeUnit": "MINUTE"
+          }
+        }
+      },
+      {
+        "viewName": "source_1",
+        "nodeId": "36122b7d-c8f7-4ebb-98b5-eb870dde7083",
+        "nodeType": "source",
+        "configuration": {
+          "topicName": "source_1",
+          "bootstrapServers": [
+            "my-kafka-cluster-kafka-bootstrap.event-automation.svc:9095"
+          ],
+          "ssl": true,
+          "topic": "NEXI.PRIMO.OUTPUT",
+          "sampleMessage": "",
+          "fields": [
+            {
+              "name": "C_BNC_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "30fbb54d-0c97-4eff-82ec-ed0f4b6cf6aa"
+            },
+            {
+              "name": "C_BNC_RGLM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "a56a5dbb-95da-4abc-b1d8-8133f23ab7e4"
+            },
+            {
+              "name": "C_BNC_PGTC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "82419363-9eb5-4aef-b36f-050f329b4f63"
+            },
+            {
+              "name": "C_ST_RCH_GT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "bea897ed-79b4-4510-9e9f-b5d0775ac286"
+            },
+            {
+              "name": "C_ST_RCH_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "10851d6e-1622-445f-9227-852c7f7421b8"
+            },
+            {
+              "name": "ESITO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "844b8653-eeec-4b16-8646-faa3f5ba7b1c"
+            },
+            {
+              "name": "S_PREF_PK_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "92df19f0-ff56-4dcd-9fc3-2234788cb051"
+            },
+            {
+              "name": "DELAY1200",
+              "type": "BIGINT",
+              "jsonType": "bigint",
+              "selected": true,
+              "uuid": "349f898a-64f9-45c5-aa62-21dd03b82c46"
+            },
+            {
+              "name": "DELAY1210",
+              "type": "BIGINT",
+              "jsonType": "bigint",
+              "selected": true,
+              "uuid": "9d34a8b3-c2d2-4a88-9072-b05043984a2f"
+            },
+            {
+              "name": "V_OP_AUTZ",
+              "type": "DOUBLE",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "ae620986-23b7-4abe-96d0-2dd0e43d1997"
+            }
+          ],
+          "watermark": {
+            "watermarkWithEventSource": true,
+            "topicLocalTimeRequired": true,
+            "timeUnit": "MINUTE",
+            "interval": 1,
+            "watermarkColumn": "event_time"
+          },
+          "configureNewSource": false,
+          "topicIdForReuse": "118f9f6c-1e25-4df4-bf4c-30a892f451a2",
+          "persistSourceTopic": true,
+          "isSourceEditable": true,
+          "format": "json",
+          "type": "SASL",
+          "username": "ts",
+          "password": "H6Rg98HBOdaOn7ZSRv6QYQJDhXKfRyt7",
+          "mechanism": "SCRAM-SHA-512",
+          "certs": [
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\n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\n-----END CERTIFICATE-----\n"
+            },
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIFLTCCAxWgAwIBAgIUMRKjzXyad5J3vXhvAzNa4x40j98wDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDAzMDYxMDQ1MTZaFw0yNDA2MDQxMDQ1MTZaMC0xEzARBgNVBAoMCmlvLnN0cmltemkxFjAUBgNVBAMMDWNsdXN0ZXItY2EgdjAwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDVnqkuNMyStDBRwUQ6qR9LRrASvxKStYqUixsBQJhcb/qaK0lzATOQXweZZ1vbyTnLh3EuOPc+ty6vio5cK+x7LynSyF76YdYl3uQEh4sBXdgV3T4IuGT08mtEzzyCaC8KYcm8EQ0pfWHI72Iu/JngJfkYGlASTVeH7bsLpABIP4WP7baOgMWbYBzXOcODLtMAK+hibN7Mg0u4nQOrzE9R1aLgG2Y1RORtb09y8bd3i2UPbxNTvdEbCQsmbfrQX3c0JqxrZy432LP58ypvV0gzEAj9RrV48wps9s3ZrejnPdtEfF3Sx6c1s/+MqTK9uVmYYCBTUQ5unrQvUy/Y5axtRHFDKuxFLER7Jf5OUlLWnyppdV//4L7ogr3gxUYULSpAZmr6JzjJsm67JrIDRnSRAycFMjGyluh453DewObissHuo6u8VMPWr+kjhqOFaNXRx408/SZOSWY3tJHzJ/gbjkFPYYnbLy6u1bjMEw+WFjB1f75VQyz3bNhJ0TODbj0VZLwbC2AN6rX37fMbUwFlgTfcbieJ03GdEUGpKYIZlJ5zyzj3RZxrl1HeU+6gZa3FQ+pP1Dvvf7G5nrp4hKGsX/iO1DPGYFbdNldgfircIVW7fbEHubQilNR45K7WuOD2L9/0xkLScRRpuHe2LUf0NtOqngq3Vpoh1ztLyfEr/wIDAQABo0UwQzAdBgNVHQ4EFgQU1oJJfYQkyzx7c0VavlxO5yPKwUcwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQENBQADggIBAJnnZcLeYSI54gYEG8cbhR5XFAXl1CX5whwdZPnYKV+EcVDxqdCeB+WZwQ5D8G4n1BP2n6mot1EPuSAwvhPJVqfJnZTiTI7QuB5nomkcRgZtGAiJJQpfrZaK4TgRlE0zb5+ICezIig+hIzEjCGxAYnV2Ag+9x27lmhA+ErEw6HcxwkZTGAPAJzm2gvWTi1Estqy6ar02k3bC7BOah1syrqsMTxIQ4zJ5FWtj5wDx89rY4zfw3xNv5VHdeGEnH1BfheAocrn2+4uLGzG77ee7Er0K7E4C1KQCXOXFmFUCWmUAhtZqyXTY/KJOhvBYfjruF9IN886WvfmTmmIYF5nVut/4CU5Jaxq/K+EdhftP8+etriiKDJk3vIMDHKYC/0U4nUpAVHbtOy4OHespkA+0+5nV46xVgQMZ96FkGzf2nG8XohhOIFNOtuO4BV3cMKXGXabYm+LfL8t6LEvUXRdqQK5nw2lFVh0Rpl5UWv5J2fQdDdPlAEggS+SWu+Ijh01/+JIVCGZMLmsR+eqeZxjSAmRm0Med5EylQLYeElaKTp2a6OzgId/Z1Mi15TsWSnOKai6nwOCoAeDM6KKhLNKdsQENGgma9Ba0erWIkGS5aQX6leWuqKwp+8JGcVmaSnHM0U6RO7vbbGmVfmoOJJsypuOtNFNhLieD9qCf6UIcy0K2\n-----END CERTIFICATE-----\n"
+            }
+          ],
+          "hasSourcePersisted": true,
+          "certificatesAccepted": true,
+          "topicAlias": "",
+          "topicPayload": "{\n  \"C_BNC_EMTT\": \"08000\",\n  \"C_BNC_RGLM\": \"09517\",\n  \"C_BNC_PGTC\": \"89025\",\n  \"C_ST_RCH_GT\": \"2\",\n  \"C_ST_RCH_EMTT\": \"2\",\n  \"ESITO\": \"AUTORIZZATA\",\n  \"S_PREF_PK_OP\": \"10100137942\",\n  \"DELAY1200\": 23,\n  \"DELAY1210\": 9,\n  \"V_OP_AUTZ\": \"20.660\"\n}"
+        }
+      },
+      {
+        "viewName": "Output Valori",
+        "nodeId": "9622a6d7-523a-43b9-a806-351352d35984",
+        "nodeType": "sink",
+        "configuration": {
+          "topicName": "Output Valori",
+          "topic": "NEXI.VALORE_TRANSAZIONI",
+          "bootstrapServers": [
+            "my-kafka-cluster-kafka-bootstrap.event-automation.svc:9095"
+          ],
+          "ssl": true,
+          "certificatesAccepted": true,
+          "type": "SASL",
+          "certs": [
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\n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\n-----END CERTIFICATE-----\n"
+            },
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIFLTCCAxWgAwIBAgIUMRKjzXyad5J3vXhvAzNa4x40j98wDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDAzMDYxMDQ1MTZaFw0yNDA2MDQxMDQ1MTZaMC0xEzARBgNVBAoMCmlvLnN0cmltemkxFjAUBgNVBAMMDWNsdXN0ZXItY2EgdjAwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDVnqkuNMyStDBRwUQ6qR9LRrASvxKStYqUixsBQJhcb/qaK0lzATOQXweZZ1vbyTnLh3EuOPc+ty6vio5cK+x7LynSyF76YdYl3uQEh4sBXdgV3T4IuGT08mtEzzyCaC8KYcm8EQ0pfWHI72Iu/JngJfkYGlASTVeH7bsLpABIP4WP7baOgMWbYBzXOcODLtMAK+hibN7Mg0u4nQOrzE9R1aLgG2Y1RORtb09y8bd3i2UPbxNTvdEbCQsmbfrQX3c0JqxrZy432LP58ypvV0gzEAj9RrV48wps9s3ZrejnPdtEfF3Sx6c1s/+MqTK9uVmYYCBTUQ5unrQvUy/Y5axtRHFDKuxFLER7Jf5OUlLWnyppdV//4L7ogr3gxUYULSpAZmr6JzjJsm67JrIDRnSRAycFMjGyluh453DewObissHuo6u8VMPWr+kjhqOFaNXRx408/SZOSWY3tJHzJ/gbjkFPYYnbLy6u1bjMEw+WFjB1f75VQyz3bNhJ0TODbj0VZLwbC2AN6rX37fMbUwFlgTfcbieJ03GdEUGpKYIZlJ5zyzj3RZxrl1HeU+6gZa3FQ+pP1Dvvf7G5nrp4hKGsX/iO1DPGYFbdNldgfircIVW7fbEHubQilNR45K7WuOD2L9/0xkLScRRpuHe2LUf0NtOqngq3Vpoh1ztLyfEr/wIDAQABo0UwQzAdBgNVHQ4EFgQU1oJJfYQkyzx7c0VavlxO5yPKwUcwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQENBQADggIBAJnnZcLeYSI54gYEG8cbhR5XFAXl1CX5whwdZPnYKV+EcVDxqdCeB+WZwQ5D8G4n1BP2n6mot1EPuSAwvhPJVqfJnZTiTI7QuB5nomkcRgZtGAiJJQpfrZaK4TgRlE0zb5+ICezIig+hIzEjCGxAYnV2Ag+9x27lmhA+ErEw6HcxwkZTGAPAJzm2gvWTi1Estqy6ar02k3bC7BOah1syrqsMTxIQ4zJ5FWtj5wDx89rY4zfw3xNv5VHdeGEnH1BfheAocrn2+4uLGzG77ee7Er0K7E4C1KQCXOXFmFUCWmUAhtZqyXTY/KJOhvBYfjruF9IN886WvfmTmmIYF5nVut/4CU5Jaxq/K+EdhftP8+etriiKDJk3vIMDHKYC/0U4nUpAVHbtOy4OHespkA+0+5nV46xVgQMZ96FkGzf2nG8XohhOIFNOtuO4BV3cMKXGXabYm+LfL8t6LEvUXRdqQK5nw2lFVh0Rpl5UWv5J2fQdDdPlAEggS+SWu+Ijh01/+JIVCGZMLmsR+eqeZxjSAmRm0Med5EylQLYeElaKTp2a6OzgId/Z1Mi15TsWSnOKai6nwOCoAeDM6KKhLNKdsQENGgma9Ba0erWIkGS5aQX6leWuqKwp+8JGcVmaSnHM0U6RO7vbbGmVfmoOJJsypuOtNFNhLieD9qCf6UIcy0K2\n-----END CERTIFICATE-----\n"
+            }
+          ],
+          "mechanism": "SCRAM-SHA-512",
+          "username": "ts",
+          "password": "H6Rg98HBOdaOn7ZSRv6QYQJDhXKfRyt7",
+          "topicAlias": ""
+        }
+      }
+    ]
+  },
+  "flowDetails": {
+    "flowName": "Valore Transazioni",
+    "flowDescription": "Flusso che calcola il valore totale e medio delle transazioni",
+    "flowVersion": 2
+  }
+}

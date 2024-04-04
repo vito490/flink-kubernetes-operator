@@ -1,0 +1,677 @@
+{
+  "pipelineState": {
+    "doc_type": "pipeline",
+    "version": "3.0",
+    "json_schema": "http://api.dataplatform.ibm.com/schemas/common-pipeline/pipeline-flow/pipeline-flow-v3-schema.json",
+    "id": "2030c5a9-19bc-424b-8e1b-205a50792253",
+    "primary_pipeline": "309e07ca-6048-4bed-9fb5-6e78fe519400",
+    "pipelines": [
+      {
+        "id": "309e07ca-6048-4bed-9fb5-6e78fe519400",
+        "nodes": [
+          {
+            "id": "b42c0d1c-b373-406a-b2f8-bd40adc4ad69",
+            "type": "filter",
+            "app_data": {
+              "node_type": "filter",
+              "ui_data": {
+                "label": "Transazioni KO",
+                "image": "/images/svg/filter.svg",
+                "x_pos": 27.548675537109375,
+                "y_pos": 13.862297058105469
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "ff8c21b6-6401-4896-a4b3-036992d5a547",
+                    "node_id_ref": "e923c0b6-edc6-4831-9a71-6a52f21864c2",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "c065b2c8-c693-4543-b678-9f5898b9ec61",
+            "type": "windowTopN",
+            "app_data": {
+              "node_type": "windowTopN",
+              "ui_data": {
+                "label": "OK Tempi più bassi",
+                "image": "/images/svg/windowTopN.svg",
+                "x_pos": 105.6944580078125,
+                "y_pos": 100.74764156341553
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "2bd8d806-881f-448a-8a13-290893d419fc",
+                    "node_id_ref": "b42c0d1c-b373-406a-b2f8-bd40adc4ad69",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "54cbcabd-a412-4bd4-9070-39fd550f8777",
+            "type": "transform",
+            "app_data": {
+              "node_type": "transform",
+              "ui_data": {
+                "label": "Set Flag Identificativo",
+                "image": "/images/svg/transform.svg",
+                "x_pos": 244.0271759033203,
+                "y_pos": 289.13323974609375
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "e02f1209-62c1-40d4-bd6b-23e6d6a49005",
+                    "node_id_ref": "63d34fbe-8ff7-44a8-9773-b291e2b57178",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "05693097-e3d1-47c1-b3f5-ee66a3cc968a",
+            "type": "sink",
+            "app_data": {
+              "node_type": "sink",
+              "ui_data": {
+                "label": "OutPut",
+                "image": "/images/svg/sink.svg",
+                "x_pos": 626.0649347491238,
+                "y_pos": 289.1265318786286
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "4937775c-e822-468e-ba8b-095fc079d697",
+                    "node_id_ref": "54cbcabd-a412-4bd4-9070-39fd550f8777",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "63d34fbe-8ff7-44a8-9773-b291e2b57178",
+            "type": "aggregate",
+            "app_data": {
+              "node_type": "aggregate",
+              "ui_data": {
+                "label": "Calcolo Media",
+                "image": "/images/svg/aggregate.svg",
+                "x_pos": 170.00003051757812,
+                "y_pos": 194.99998474121094
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "14398d8f-1c37-428d-b7e4-8bd56c007419",
+                    "node_id_ref": "c065b2c8-c693-4543-b678-9f5898b9ec61",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "e923c0b6-edc6-4831-9a71-6a52f21864c2",
+            "type": "source",
+            "app_data": {
+              "node_type": "source",
+              "ui_data": {
+                "label": "source_1",
+                "image": "/images/svg/source.svg",
+                "x_pos": -57,
+                "y_pos": -85
+              }
+            },
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "app_data": {
+          "ui_data": {
+            "comments": []
+          }
+        },
+        "runtime_ref": ""
+      }
+    ],
+    "schemas": []
+  },
+  "contextState": {
+    "edges": [
+      {
+        "incoming": "b42c0d1c-b373-406a-b2f8-bd40adc4ad69",
+        "outgoing": "c065b2c8-c693-4543-b678-9f5898b9ec61"
+      },
+      {
+        "incoming": "c065b2c8-c693-4543-b678-9f5898b9ec61",
+        "outgoing": "63d34fbe-8ff7-44a8-9773-b291e2b57178"
+      },
+      {
+        "incoming": "63d34fbe-8ff7-44a8-9773-b291e2b57178",
+        "outgoing": "54cbcabd-a412-4bd4-9070-39fd550f8777"
+      },
+      {
+        "incoming": "54cbcabd-a412-4bd4-9070-39fd550f8777",
+        "outgoing": "05693097-e3d1-47c1-b3f5-ee66a3cc968a"
+      },
+      {
+        "incoming": "e923c0b6-edc6-4831-9a71-6a52f21864c2",
+        "outgoing": "b42c0d1c-b373-406a-b2f8-bd40adc4ad69"
+      }
+    ],
+    "nodes": [
+      {
+        "viewName": "Transazioni KO",
+        "nodeId": "b42c0d1c-b373-406a-b2f8-bd40adc4ad69",
+        "nodeType": "filter",
+        "configuration": {
+          "statement": "ESITO NOT LIKE 'AUTORIZZATA'"
+        }
+      },
+      {
+        "viewName": "OK Tempi più bassi",
+        "nodeId": "c065b2c8-c693-4543-b678-9f5898b9ec61",
+        "nodeType": "windowTopN",
+        "configuration": {
+          "topN": {
+            "limit": 10,
+            "orderBy": [
+              {
+                "column": "DELAY1200",
+                "order": "ASC"
+              }
+            ],
+            "partitionBy": []
+          },
+          "columns": [
+            {
+              "input": {
+                "column": "C_BNC_EMTT"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_EMTT"
+            },
+            {
+              "input": {
+                "column": "C_BNC_RGLM"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_RGLM"
+            },
+            {
+              "input": {
+                "column": "C_BNC_PGTC"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_PGTC"
+            },
+            {
+              "input": {
+                "column": "C_ST_RCH_GT"
+              },
+              "expression": "",
+              "outputColumn": "C_ST_RCH_GT"
+            },
+            {
+              "input": {
+                "column": "C_ST_RCH_EMTT"
+              },
+              "expression": "",
+              "outputColumn": "C_ST_RCH_EMTT"
+            },
+            {
+              "input": {
+                "column": "ESITO"
+              },
+              "expression": "",
+              "outputColumn": "ESITO"
+            },
+            {
+              "input": {
+                "column": "S_PREF_PK_OP"
+              },
+              "expression": "",
+              "outputColumn": "S_PREF_PK_OP"
+            },
+            {
+              "input": {
+                "column": "DELAY1200"
+              },
+              "expression": "",
+              "outputColumn": "DELAY1200"
+            },
+            {
+              "input": {
+                "column": "DELAY1210"
+              },
+              "expression": "",
+              "outputColumn": "DELAY1210"
+            },
+            {
+              "input": {
+                "column": "V_OP_AUTZ"
+              },
+              "expression": "",
+              "outputColumn": "V_OP_AUTZ"
+            },
+            {
+              "input": {
+                "column": "windowStartTime"
+              },
+              "expression": "",
+              "outputColumn": "INIZIO_INTERVALLO",
+              "kind": "WINDOW_START"
+            },
+            {
+              "input": {
+                "column": "windowEndTime"
+              },
+              "expression": "",
+              "outputColumn": "FINE_INTERVALLO",
+              "kind": "WINDOW_END"
+            },
+            {
+              "input": {
+                "column": "topN"
+              },
+              "expression": "",
+              "outputColumn": "topN",
+              "kind": "TOP_N"
+            },
+            {
+              "outputColumn": "event_time",
+              "input": {
+                "column": "event_time"
+              },
+              "expression": ""
+            }
+          ],
+          "timeEvent": {
+            "table": "",
+            "column": "event_time"
+          },
+          "windowPeriod": {
+            "interval": 1,
+            "timeUnit": "MINUTE"
+          }
+        }
+      },
+      {
+        "viewName": "Calcolo Media",
+        "nodeId": "63d34fbe-8ff7-44a8-9773-b291e2b57178",
+        "nodeType": "aggregate",
+        "configuration": {
+          "functions": [
+            {
+              "id": "AVG_DELAY1200",
+              "name": "AVG",
+              "distinct": false,
+              "source": {
+                "column": "DELAY1200"
+              }
+            }
+          ],
+          "groupBy": [],
+          "columns": [
+            {
+              "outputColumn": "RESPONSE_TIME",
+              "expression": "",
+              "input": {
+                "column": "AVG_DELAY1200"
+              },
+              "kind": "AGGREGATE_RESULT",
+              "aggregateFunctionId": "AVG_DELAY1200"
+            },
+            {
+              "outputColumn": "INIZIO_INTERVALLO",
+              "expression": "",
+              "input": {
+                "column": "aggregateStartTime"
+              },
+              "kind": "WINDOW_START"
+            },
+            {
+              "outputColumn": "FINE_INTERVALLO",
+              "expression": "",
+              "input": {
+                "column": "aggregateEndTime"
+              },
+              "kind": "WINDOW_END"
+            }
+          ],
+          "timeEvent": {
+            "table": "",
+            "column": "event_time"
+          },
+          "aggregationPeriod": {
+            "interval": 1,
+            "timeUnit": "MINUTE"
+          }
+        }
+      },
+      {
+        "viewName": "Set Flag Identificativo",
+        "nodeId": "54cbcabd-a412-4bd4-9070-39fd550f8777",
+        "nodeType": "transform",
+        "configuration": {
+          "columns": [
+            {
+              "input": {
+                "column": "INIZIO_INTERVALLO"
+              },
+              "expression": "",
+              "outputColumn": "INIZIO_INTERVALLO",
+              "kind": "WINDOW_START"
+            },
+            {
+              "input": {
+                "column": "FINE_INTERVALLO"
+              },
+              "expression": "",
+              "outputColumn": "FINE_INTERVALLO",
+              "kind": "WINDOW_END"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "FLAG",
+              "expression": "'KO_BASSI'",
+              "castType": "STRING"
+            },
+            {
+              "outputColumn": "RESPONSE_TIME",
+              "input": {
+                "column": "RESPONSE_TIME"
+              },
+              "expression": ""
+            }
+          ]
+        }
+      },
+      {
+        "viewName": "source_1",
+        "nodeId": "e923c0b6-edc6-4831-9a71-6a52f21864c2",
+        "nodeType": "source",
+        "configuration": {
+          "topicName": "source_1",
+          "bootstrapServers": [
+            "my-kafka-cluster-kafka-bootstrap.event-automation.svc:9095"
+          ],
+          "ssl": true,
+          "topic": "NEXI.PRIMO.OUTPUT",
+          "sampleMessage": "",
+          "fields": [
+            {
+              "name": "C_BNC_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "d7a3b771-0a4c-4b53-8f93-91da51161019"
+            },
+            {
+              "name": "C_BNC_RGLM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "c6d531ad-e65c-4058-a2a9-4c033f3a98da"
+            },
+            {
+              "name": "C_BNC_PGTC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "4e6c8fdb-1e7e-4589-843e-28f839874218"
+            },
+            {
+              "name": "C_ST_RCH_GT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "28773e1f-e1e9-4b08-8414-58ec7e19b853"
+            },
+            {
+              "name": "C_ST_RCH_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "a54e1bfb-5a79-45e1-b9a6-ee93dc36cc2f"
+            },
+            {
+              "name": "ESITO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "bb969f5a-60fb-45d8-8fbf-8adfaa597afc"
+            },
+            {
+              "name": "S_PREF_PK_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "09325ee7-6281-44b5-a6ee-4c02c358f33a"
+            },
+            {
+              "name": "DELAY1200",
+              "type": "BIGINT",
+              "jsonType": "bigint",
+              "selected": true,
+              "uuid": "c084adb2-a44e-44d7-9243-e2ba95bd9a54"
+            },
+            {
+              "name": "DELAY1210",
+              "type": "BIGINT",
+              "jsonType": "bigint",
+              "selected": true,
+              "uuid": "7bbc160f-4e4c-49ca-a2b4-d0f86e88daf1"
+            },
+            {
+              "name": "V_OP_AUTZ",
+              "type": "DOUBLE",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "0c67c51a-f700-4b6f-94b6-714440e1ee89"
+            }
+          ],
+          "watermark": {
+            "watermarkWithEventSource": true,
+            "topicLocalTimeRequired": true,
+            "timeUnit": "MINUTE",
+            "interval": 1,
+            "watermarkColumn": "event_time"
+          },
+          "configureNewSource": false,
+          "topicIdForReuse": "118f9f6c-1e25-4df4-bf4c-30a892f451a2",
+          "persistSourceTopic": true,
+          "isSourceEditable": true,
+          "format": "json",
+          "type": "SASL",
+          "username": "ts",
+          "password": "H6Rg98HBOdaOn7ZSRv6QYQJDhXKfRyt7",
+          "mechanism": "SCRAM-SHA-512",
+          "certs": [
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\n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\n-----END CERTIFICATE-----\n"
+            },
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIFLTCCAxWgAwIBAgIUMRKjzXyad5J3vXhvAzNa4x40j98wDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDAzMDYxMDQ1MTZaFw0yNDA2MDQxMDQ1MTZaMC0xEzARBgNVBAoMCmlvLnN0cmltemkxFjAUBgNVBAMMDWNsdXN0ZXItY2EgdjAwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDVnqkuNMyStDBRwUQ6qR9LRrASvxKStYqUixsBQJhcb/qaK0lzATOQXweZZ1vbyTnLh3EuOPc+ty6vio5cK+x7LynSyF76YdYl3uQEh4sBXdgV3T4IuGT08mtEzzyCaC8KYcm8EQ0pfWHI72Iu/JngJfkYGlASTVeH7bsLpABIP4WP7baOgMWbYBzXOcODLtMAK+hibN7Mg0u4nQOrzE9R1aLgG2Y1RORtb09y8bd3i2UPbxNTvdEbCQsmbfrQX3c0JqxrZy432LP58ypvV0gzEAj9RrV48wps9s3ZrejnPdtEfF3Sx6c1s/+MqTK9uVmYYCBTUQ5unrQvUy/Y5axtRHFDKuxFLER7Jf5OUlLWnyppdV//4L7ogr3gxUYULSpAZmr6JzjJsm67JrIDRnSRAycFMjGyluh453DewObissHuo6u8VMPWr+kjhqOFaNXRx408/SZOSWY3tJHzJ/gbjkFPYYnbLy6u1bjMEw+WFjB1f75VQyz3bNhJ0TODbj0VZLwbC2AN6rX37fMbUwFlgTfcbieJ03GdEUGpKYIZlJ5zyzj3RZxrl1HeU+6gZa3FQ+pP1Dvvf7G5nrp4hKGsX/iO1DPGYFbdNldgfircIVW7fbEHubQilNR45K7WuOD2L9/0xkLScRRpuHe2LUf0NtOqngq3Vpoh1ztLyfEr/wIDAQABo0UwQzAdBgNVHQ4EFgQU1oJJfYQkyzx7c0VavlxO5yPKwUcwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQENBQADggIBAJnnZcLeYSI54gYEG8cbhR5XFAXl1CX5whwdZPnYKV+EcVDxqdCeB+WZwQ5D8G4n1BP2n6mot1EPuSAwvhPJVqfJnZTiTI7QuB5nomkcRgZtGAiJJQpfrZaK4TgRlE0zb5+ICezIig+hIzEjCGxAYnV2Ag+9x27lmhA+ErEw6HcxwkZTGAPAJzm2gvWTi1Estqy6ar02k3bC7BOah1syrqsMTxIQ4zJ5FWtj5wDx89rY4zfw3xNv5VHdeGEnH1BfheAocrn2+4uLGzG77ee7Er0K7E4C1KQCXOXFmFUCWmUAhtZqyXTY/KJOhvBYfjruF9IN886WvfmTmmIYF5nVut/4CU5Jaxq/K+EdhftP8+etriiKDJk3vIMDHKYC/0U4nUpAVHbtOy4OHespkA+0+5nV46xVgQMZ96FkGzf2nG8XohhOIFNOtuO4BV3cMKXGXabYm+LfL8t6LEvUXRdqQK5nw2lFVh0Rpl5UWv5J2fQdDdPlAEggS+SWu+Ijh01/+JIVCGZMLmsR+eqeZxjSAmRm0Med5EylQLYeElaKTp2a6OzgId/Z1Mi15TsWSnOKai6nwOCoAeDM6KKhLNKdsQENGgma9Ba0erWIkGS5aQX6leWuqKwp+8JGcVmaSnHM0U6RO7vbbGmVfmoOJJsypuOtNFNhLieD9qCf6UIcy0K2\n-----END CERTIFICATE-----\n"
+            }
+          ],
+          "hasSourcePersisted": true,
+          "certificatesAccepted": true,
+          "topicAlias": "",
+          "topicPayload": "{\n  \"C_BNC_EMTT\": \"08000\",\n  \"C_BNC_RGLM\": \"09517\",\n  \"C_BNC_PGTC\": \"89025\",\n  \"C_ST_RCH_GT\": \"2\",\n  \"C_ST_RCH_EMTT\": \"2\",\n  \"ESITO\": \"AUTORIZZATA\",\n  \"S_PREF_PK_OP\": \"10100137942\",\n  \"DELAY1200\": 23,\n  \"DELAY1210\": 9,\n  \"V_OP_AUTZ\": \"20.660\"\n}"
+        }
+      },
+      {
+        "viewName": "OutPut",
+        "nodeId": "05693097-e3d1-47c1-b3f5-ee66a3cc968a",
+        "nodeType": "sink",
+        "configuration": {
+          "topicName": "OutPut",
+          "topic": "NEXI.TEMPI_RISPOSTA",
+          "bootstrapServers": [
+            "my-kafka-cluster-kafka-bootstrap.event-automation.svc:9095"
+          ],
+          "ssl": true,
+          "certificatesAccepted": true,
+          "type": "SASL",
+          "certs": [
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\n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\n-----END CERTIFICATE-----\n"
+            },
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIFLTCCAxWgAwIBAgIUMRKjzXyad5J3vXhvAzNa4x40j98wDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDAzMDYxMDQ1MTZaFw0yNDA2MDQxMDQ1MTZaMC0xEzARBgNVBAoMCmlvLnN0cmltemkxFjAUBgNVBAMMDWNsdXN0ZXItY2EgdjAwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDVnqkuNMyStDBRwUQ6qR9LRrASvxKStYqUixsBQJhcb/qaK0lzATOQXweZZ1vbyTnLh3EuOPc+ty6vio5cK+x7LynSyF76YdYl3uQEh4sBXdgV3T4IuGT08mtEzzyCaC8KYcm8EQ0pfWHI72Iu/JngJfkYGlASTVeH7bsLpABIP4WP7baOgMWbYBzXOcODLtMAK+hibN7Mg0u4nQOrzE9R1aLgG2Y1RORtb09y8bd3i2UPbxNTvdEbCQsmbfrQX3c0JqxrZy432LP58ypvV0gzEAj9RrV48wps9s3ZrejnPdtEfF3Sx6c1s/+MqTK9uVmYYCBTUQ5unrQvUy/Y5axtRHFDKuxFLER7Jf5OUlLWnyppdV//4L7ogr3gxUYULSpAZmr6JzjJsm67JrIDRnSRAycFMjGyluh453DewObissHuo6u8VMPWr+kjhqOFaNXRx408/SZOSWY3tJHzJ/gbjkFPYYnbLy6u1bjMEw+WFjB1f75VQyz3bNhJ0TODbj0VZLwbC2AN6rX37fMbUwFlgTfcbieJ03GdEUGpKYIZlJ5zyzj3RZxrl1HeU+6gZa3FQ+pP1Dvvf7G5nrp4hKGsX/iO1DPGYFbdNldgfircIVW7fbEHubQilNR45K7WuOD2L9/0xkLScRRpuHe2LUf0NtOqngq3Vpoh1ztLyfEr/wIDAQABo0UwQzAdBgNVHQ4EFgQU1oJJfYQkyzx7c0VavlxO5yPKwUcwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQENBQADggIBAJnnZcLeYSI54gYEG8cbhR5XFAXl1CX5whwdZPnYKV+EcVDxqdCeB+WZwQ5D8G4n1BP2n6mot1EPuSAwvhPJVqfJnZTiTI7QuB5nomkcRgZtGAiJJQpfrZaK4TgRlE0zb5+ICezIig+hIzEjCGxAYnV2Ag+9x27lmhA+ErEw6HcxwkZTGAPAJzm2gvWTi1Estqy6ar02k3bC7BOah1syrqsMTxIQ4zJ5FWtj5wDx89rY4zfw3xNv5VHdeGEnH1BfheAocrn2+4uLGzG77ee7Er0K7E4C1KQCXOXFmFUCWmUAhtZqyXTY/KJOhvBYfjruF9IN886WvfmTmmIYF5nVut/4CU5Jaxq/K+EdhftP8+etriiKDJk3vIMDHKYC/0U4nUpAVHbtOy4OHespkA+0+5nV46xVgQMZ96FkGzf2nG8XohhOIFNOtuO4BV3cMKXGXabYm+LfL8t6LEvUXRdqQK5nw2lFVh0Rpl5UWv5J2fQdDdPlAEggS+SWu+Ijh01/+JIVCGZMLmsR+eqeZxjSAmRm0Med5EylQLYeElaKTp2a6OzgId/Z1Mi15TsWSnOKai6nwOCoAeDM6KKhLNKdsQENGgma9Ba0erWIkGS5aQX6leWuqKwp+8JGcVmaSnHM0U6RO7vbbGmVfmoOJJsypuOtNFNhLieD9qCf6UIcy0K2\n-----END CERTIFICATE-----\n"
+            }
+          ],
+          "mechanism": "SCRAM-SHA-512",
+          "username": "ts",
+          "password": "H6Rg98HBOdaOn7ZSRv6QYQJDhXKfRyt7",
+          "topicAlias": ""
+        }
+      }
+    ]
+  },
+  "flowDetails": {
+    "flowName": "Tempi di risposta del servizio - KO Con tempi più bassi",
+    "flowDescription": "Flusso che calcola in base alle latenze i tempi medi di risposta del servizio più bassi per le chiamate KO",
+    "flowVersion": 2
+  }
+}
