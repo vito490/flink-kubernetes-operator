@@ -42,7 +42,7 @@ spec:
     table.exec.source.idle-timeout: 30 s
   serviceAccount: flink
   flinkVersion: v1_18
-  image: 'image-registry.openshift-image-registry.svc:5000/event-automation/nexi-sql-runner:1.5'
+  image: 'image-registry.openshift-image-registry.svc:5000/event-automation/nexi-sql-runner:1.0'
   job:
     allowNonRestoredState: true
     args:
