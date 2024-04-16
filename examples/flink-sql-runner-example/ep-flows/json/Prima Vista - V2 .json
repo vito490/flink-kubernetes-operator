@@ -1,0 +1,2093 @@
+{
+  "pipelineState": {
+    "doc_type": "pipeline",
+    "version": "3.0",
+    "json_schema": "http://api.dataplatform.ibm.com/schemas/common-pipeline/pipeline-flow/pipeline-flow-v3-schema.json",
+    "id": "ec0d15de-331c-48ec-9467-5fe8e2b85133",
+    "primary_pipeline": "9b4aaacf-ebba-4d9e-a788-d4e6392f7b67",
+    "pipelines": [
+      {
+        "id": "9b4aaacf-ebba-4d9e-a788-d4e6392f7b67",
+        "nodes": [
+          {
+            "id": "6851af3e-7281-43a0-9315-619c458db0fa",
+            "type": "source",
+            "app_data": {
+              "node_type": "source",
+              "ui_data": {
+                "label": "BPI012Z",
+                "image": "/images/svg/source.svg",
+                "x_pos": 75,
+                "y_pos": 64
+              }
+            },
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "8c310dbc-bb00-4d2b-8394-9d1937326327",
+            "type": "filter",
+            "app_data": {
+              "node_type": "filter",
+              "ui_data": {
+                "label": "TP and TRT FILTER",
+                "image": "/images/svg/filter.svg",
+                "x_pos": 444.0628356933594,
+                "y_pos": 61.95492172241211
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "531d0f33-421c-4307-9472-db73b9f0db7a",
+                    "node_id_ref": "6851af3e-7281-43a0-9315-619c458db0fa",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "3f2115b5-6d97-4bef-aefb-ce1c4a07e15b",
+            "type": "source",
+            "app_data": {
+              "node_type": "source",
+              "ui_data": {
+                "label": "BPI010Z",
+                "image": "/images/svg/source.svg",
+                "x_pos": 53,
+                "y_pos": 195
+              }
+            },
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "4c4271e0-4573-4888-bb30-6a3c84516a2e",
+            "type": "intervalJoin",
+            "app_data": {
+              "node_type": "intervalJoin",
+              "ui_data": {
+                "label": "10Z JOIN 12Z",
+                "image": "/images/svg/intervalJoin.svg",
+                "x_pos": 445.9999694824219,
+                "y_pos": 200
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 2
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "bffa298f-bcc1-4336-b243-1b8b40c0caf9",
+                    "node_id_ref": "3f2115b5-6d97-4bef-aefb-ce1c4a07e15b",
+                    "port_id_ref": "outPort"
+                  },
+                  {
+                    "id": "44b78515-57d3-4052-8e8b-e78ca346ee35",
+                    "node_id_ref": "e6d09ade-b464-44de-919a-3da4167598ff",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "d0831009-f379-4fd7-a473-bac47cf01d7a",
+            "type": "source",
+            "app_data": {
+              "node_type": "source",
+              "ui_data": {
+                "label": "BPI013Z",
+                "image": "/images/svg/source.svg",
+                "x_pos": 41,
+                "y_pos": 345
+              }
+            },
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "ee14233f-b157-4c4d-baa8-3b35a3c12dc6",
+            "type": "intervalJoin",
+            "app_data": {
+              "node_type": "intervalJoin",
+              "ui_data": {
+                "label": "1210 JOIN 13",
+                "image": "/images/svg/intervalJoin.svg",
+                "x_pos": 456,
+                "y_pos": 347
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 2
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "5775ad96-60bb-4d22-9846-9ac1f7472ea1",
+                    "node_id_ref": "4c4271e0-4573-4888-bb30-6a3c84516a2e",
+                    "port_id_ref": "outPort"
+                  },
+                  {
+                    "id": "3e660858-8952-4073-9f3b-a4caa7c8d167",
+                    "node_id_ref": "c875ffc8-314f-45db-926a-143ae5d7bf0e",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "e6d09ade-b464-44de-919a-3da4167598ff",
+            "type": "transform",
+            "app_data": {
+              "node_type": "transform",
+              "ui_data": {
+                "label": "12Z TO Timestamps",
+                "image": "/images/svg/transform.svg",
+                "x_pos": 858.5333289585916,
+                "y_pos": 62.65544963898114
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "7e0bf668-3afd-4764-b676-0102ec3370d1",
+                    "node_id_ref": "8c310dbc-bb00-4d2b-8394-9d1937326327",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "c875ffc8-314f-45db-926a-143ae5d7bf0e",
+            "type": "transform",
+            "app_data": {
+              "node_type": "transform",
+              "ui_data": {
+                "label": "13Z To Timestamps",
+                "image": "/images/svg/transform.svg",
+                "x_pos": 452.09781493346577,
+                "y_pos": 583.3326935756743
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "d6a82ebb-a22d-4e49-a27f-7e7af298aead",
+                    "node_id_ref": "20f395a0-d5e9-417e-9746-6df09281a81e",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "2c46de40-eae2-4450-9665-f1b0d7b5e9b9",
+            "type": "transform",
+            "app_data": {
+              "node_type": "transform",
+              "ui_data": {
+                "label": "Timestamps to microseconds",
+                "image": "/images/svg/transform.svg",
+                "x_pos": 809,
+                "y_pos": 348
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "016da625-98d8-46b2-b847-336e55480799",
+                    "node_id_ref": "ee14233f-b157-4c4d-baa8-3b35a3c12dc6",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "72b2017d-1c23-4103-92b4-9d79d7512cbc",
+            "type": "transform",
+            "app_data": {
+              "node_type": "transform",
+              "ui_data": {
+                "label": "Delay Calculation",
+                "image": "/images/svg/transform.svg",
+                "x_pos": 892,
+                "y_pos": 496.99993896484375
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "c3f0a13f-f147-442a-ae14-541b5b7ee689",
+                    "node_id_ref": "2c46de40-eae2-4450-9665-f1b0d7b5e9b9",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "20f395a0-d5e9-417e-9746-6df09281a81e",
+            "type": "filter",
+            "app_data": {
+              "node_type": "filter",
+              "ui_data": {
+                "label": "filter_1",
+                "image": "/images/svg/filter.svg",
+                "x_pos": 81,
+                "y_pos": 479
+              }
+            },
+            "inputs": [
+              {
+                "id": "inPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": 1
+                    },
+                    "label": "Input Port"
+                  }
+                },
+                "links": [
+                  {
+                    "id": "56b9999e-94ce-43cc-9a3a-80c3287d4dd1",
+                    "node_id_ref": "d0831009-f379-4fd7-a473-bac47cf01d7a",
+                    "port_id_ref": "outPort"
+                  }
+                ]
+              }
+            ],
+            "outputs": [
+              {
+                "id": "outPort",
+                "app_data": {
+                  "ui_data": {
+                    "cardinality": {
+                      "min": 0,
+                      "max": -1
+                    },
+                    "label": "Output Port"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "app_data": {
+          "ui_data": {
+            "comments": []
+          }
+        },
+        "runtime_ref": ""
+      }
+    ],
+    "schemas": []
+  },
+  "contextState": {
+    "edges": [
+      {
+        "incoming": "6851af3e-7281-43a0-9315-619c458db0fa",
+        "outgoing": "8c310dbc-bb00-4d2b-8394-9d1937326327"
+      },
+      {
+        "incoming": "3f2115b5-6d97-4bef-aefb-ce1c4a07e15b",
+        "outgoing": "4c4271e0-4573-4888-bb30-6a3c84516a2e"
+      },
+      {
+        "incoming": "4c4271e0-4573-4888-bb30-6a3c84516a2e",
+        "outgoing": "ee14233f-b157-4c4d-baa8-3b35a3c12dc6"
+      },
+      {
+        "incoming": "8c310dbc-bb00-4d2b-8394-9d1937326327",
+        "outgoing": "e6d09ade-b464-44de-919a-3da4167598ff"
+      },
+      {
+        "incoming": "e6d09ade-b464-44de-919a-3da4167598ff",
+        "outgoing": "4c4271e0-4573-4888-bb30-6a3c84516a2e"
+      },
+      {
+        "incoming": "c875ffc8-314f-45db-926a-143ae5d7bf0e",
+        "outgoing": "ee14233f-b157-4c4d-baa8-3b35a3c12dc6"
+      },
+      {
+        "incoming": "ee14233f-b157-4c4d-baa8-3b35a3c12dc6",
+        "outgoing": "2c46de40-eae2-4450-9665-f1b0d7b5e9b9"
+      },
+      {
+        "incoming": "2c46de40-eae2-4450-9665-f1b0d7b5e9b9",
+        "outgoing": "72b2017d-1c23-4103-92b4-9d79d7512cbc"
+      },
+      {
+        "incoming": "d0831009-f379-4fd7-a473-bac47cf01d7a",
+        "outgoing": "20f395a0-d5e9-417e-9746-6df09281a81e"
+      },
+      {
+        "incoming": "20f395a0-d5e9-417e-9746-6df09281a81e",
+        "outgoing": "c875ffc8-314f-45db-926a-143ae5d7bf0e"
+      }
+    ],
+    "nodes": [
+      {
+        "viewName": "Delay Calculation",
+        "nodeId": "72b2017d-1c23-4103-92b4-9d79d7512cbc",
+        "nodeType": "transform",
+        "configuration": {
+          "columns": [
+            {
+              "input": {
+                "column": "C_BNC_EMTT"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_EMTT"
+            },
+            {
+              "input": {
+                "column": "C_BNC_RGLM"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_RGLM"
+            },
+            {
+              "input": {
+                "column": "C_BNC_PGTC"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_PGTC"
+            },
+            {
+              "input": {
+                "column": "C_ST_RCH_GT"
+              },
+              "expression": "",
+              "outputColumn": "C_ST_RCH_GT"
+            },
+            {
+              "input": {
+                "column": "C_ST_RCH_EMTT"
+              },
+              "expression": "",
+              "outputColumn": "C_ST_RCH_EMTT"
+            },
+            {
+              "input": {
+                "column": "ESITO"
+              },
+              "expression": "",
+              "outputColumn": "ESITO"
+            },
+            {
+              "outputColumn": "S_PREF_PK_OP",
+              "input": {
+                "column": "S_PREF_PK_OP"
+              },
+              "expression": ""
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "DELAY1200",
+              "expression": "E_TX_MSG_OUT_13_MICROSECONDS - E_RX_MSG_IN_12_MICROSECONDS"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "DELAY1210",
+              "expression": "E_TX_MSG_OUT_12_MICROSECONDS - E_RX_MSG_IN_13_MICROSECONDS"
+            },
+            {
+              "outputColumn": "V_OP_AUTZ",
+              "input": {
+                "column": "V_OP_AUTZ"
+              },
+              "expression": ""
+            }
+          ]
+        }
+      },
+      {
+        "viewName": "TP and TRT FILTER",
+        "nodeId": "8c310dbc-bb00-4d2b-8394-9d1937326327",
+        "nodeType": "filter",
+        "configuration": {
+          "statement": "`C_TP_MSG` = '1200' AND C_TRT_MSG = '1' AND CHAR_LENGTH(E_RX_MSG_IN) > 0 AND CHAR_LENGTH(E_TX_MSG_OUT) > 0 "
+        }
+      },
+      {
+        "viewName": "12Z TO Timestamps",
+        "nodeId": "e6d09ade-b464-44de-919a-3da4167598ff",
+        "nodeType": "transform",
+        "configuration": {
+          "columns": [
+            {
+              "input": {
+                "column": "S_PREF_PK_OP"
+              },
+              "expression": "",
+              "outputColumn": "S_PREF_PK_OP"
+            },
+            {
+              "input": {
+                "column": "C_TP_MSG"
+              },
+              "expression": "",
+              "outputColumn": "C_TP_MSG"
+            },
+            {
+              "input": {
+                "column": "C_TRT_MSG"
+              },
+              "expression": "",
+              "outputColumn": "C_TRT_MSG"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT"
+            },
+            {
+              "input": {
+                "column": "event_time"
+              },
+              "expression": "",
+              "outputColumn": "event_time"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_TX_MSG_OUT_TIMESTMP_12",
+              "expression": "TO_TIMESTAMP(`E_TX_MSG_OUT`, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_RX_MSG_IN_TIMESTMP_12",
+              "expression": "TO_TIMESTAMP(`E_RX_MSG_IN`, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_RX_MSG_IN_DATE_12",
+              "expression": "TO_DATE(`E_RX_MSG_IN`, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_TX_MSG_OUT_DATE_12",
+              "expression": "TO_DATE(`E_TX_MSG_OUT`, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            }
+          ]
+        }
+      },
+      {
+        "viewName": "13Z To Timestamps",
+        "nodeId": "c875ffc8-314f-45db-926a-143ae5d7bf0e",
+        "nodeType": "transform",
+        "configuration": {
+          "columns": [
+            {
+              "input": {
+                "column": "S_PREF_PK_OP"
+              },
+              "expression": "",
+              "outputColumn": "S_PREF_PK_OP"
+            },
+            {
+              "input": {
+                "column": "C_TP_MSG"
+              },
+              "expression": "",
+              "outputColumn": "C_TP_MSG"
+            },
+            {
+              "input": {
+                "column": "C_TRT_MSG"
+              },
+              "expression": "",
+              "outputColumn": "C_TRT_MSG"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT"
+            },
+            {
+              "input": {
+                "column": "event_time"
+              },
+              "expression": "",
+              "outputColumn": "event_time"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_TX_MSG_OUT_13_TIMESTMP",
+              "expression": "TO_TIMESTAMP(`E_TX_MSG_OUT`, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_RX_MSG_IN_13_TIMESTMP",
+              "expression": "TO_TIMESTAMP(`E_RX_MSG_IN`, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_RX_MSG_IN_13_DATE",
+              "expression": "TO_DATE (E_RX_MSG_IN, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_TX_MSG_OUT_13_DATE",
+              "expression": "TO_DATE (E_TX_MSG_OUT, 'yyyy-MM-dd-HH.mm.ss.SSSSSS')"
+            }
+          ]
+        }
+      },
+      {
+        "viewName": "BPI012Z",
+        "nodeId": "6851af3e-7281-43a0-9315-619c458db0fa",
+        "nodeType": "source",
+        "configuration": {
+          "topicName": "BPI012Z",
+          "bootstrapServers": [
+            "minimal-prod-kafka-bootstrap.event-automation.svc:9093"
+          ],
+          "ssl": true,
+          "topic": "NEXI.BPI012Z",
+          "sampleMessage": "",
+          "fields": [
+            {
+              "name": "S_PREF_PK_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "P_AOR",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_TP_MSG",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_TRT_MSG",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_SOG_MITT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_TP_SOG",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "P_STAN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "V_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "D_GAPPL",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "D_RGLM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "D_QDR",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "P_LTT_QDR",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ESITO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_MTVZ_ESITO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "E_RX_MSG_IN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "E_TX_MSG_OUT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "Q_REPEAT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "N_PGM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "N_JOB",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "S_PREF_PK_MSG_IN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "S_PREF_PK_MSG_OUT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_MD_AUTZ",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_PRCS_004",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_SOG_AUTH_058",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            }
+          ],
+          "watermark": {
+            "watermarkWithEventSource": true,
+            "topicLocalTimeRequired": true,
+            "timeUnit": "MINUTE",
+            "interval": 1,
+            "watermarkColumn": "event_time"
+          },
+          "configureNewSource": false,
+          "topicIdForReuse": "d5f25397-5bd3-4d20-b643-88649fcaeddd",
+          "persistSourceTopic": true,
+          "isSourceEditable": true,
+          "format": "json",
+          "type": "SASL",
+          "username": "es-admin",
+          "password": "GLn1KYvjYUN67K7m371PYnguWan7Q0mY",
+          "mechanism": "SCRAM-SHA-512",
+          "certs": [
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIG2DCCBMCgAwIBAgIUZzUqGd/c++cRFqQqJzGMTjueR18wDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDA0MDQxNDE1NDBaFw0yNDA3MDMxNDE1NDBaMDIxEzARBgNVBAoMCmlvLnN0cmltemkxGzAZBgNVBAMMEm1pbmltYWwtcHJvZC1rYWZrYTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMQVp4RiTkZx/+cqLD+g96DF0kx8ezKYw+tuwBY7BTK0QPRKaZA1ad3LrmjArEF7vqxLHC9934qXGP9tyF3eZZkHdJuWenLkhMUvR67o+lOMn1UFA6BSUj05kuS5F2KGUFNpDPJq0/afDJJ/RrhOBHziMCrSVFN4XqOCbxe81iTaRGLUl2g/2+newbefn+tyreIiwL0OeQTYBFRad18V6bwNmvt+2av5ud1AsIjt7AQ6z/F3R+k83bxbFcx4jJ7CiZbGZzcKIQa67Z7SyqDgu8B9mErNV4wZoWCjGP1CQJTlh8uI+i8drqUuXntX8RrvxMllXPxUbN79wCmfhgj9oAkCAwEAAaOCAukwggLlMIIC4QYDVR0RBIIC2DCCAtSCL21pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzLmV2ZW50LWF1dG9tYXRpb24uc3Zjgj1taW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9uLnN2Yy5jbHVzdGVyLmxvY2FsgittaW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9ugi1taW5pbWFsLXByb2Qta2Fma2EtYm9vdHN0cmFwLmV2ZW50LWF1dG9tYXRpb26CUm1pbmltYWwtcHJvZC1rYWZrYS0wLm1pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzLmV2ZW50LWF1dG9tYXRpb24uc3ZjLmNsdXN0ZXIubG9jYWyCWm1pbmltYWwtcHJvZC1rYWZrYS0wLWV2ZW50LWF1dG9tYXRpb24uYXBwcy42NWMwYTE4ZTcxYTY5YzAwMTFlYmIxNmEuY2xvdWQudGVjaHpvbmUuaWJtLmNvbYI/bWluaW1hbC1wcm9kLWthZmthLWJvb3RzdHJhcC5ldmVudC1hdXRvbWF0aW9uLnN2Yy5jbHVzdGVyLmxvY2FsghxtaW5pbWFsLXByb2Qta2Fma2EtYm9vdHN0cmFwgkRtaW5pbWFsLXByb2Qta2Fma2EtMC5taW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9uLnN2Y4JibWluaW1hbC1wcm9kLWthZmthLWJvb3RzdHJhcC1ldmVudC1hdXRvbWF0aW9uLmFwcHMuNjVjMGExOGU3MWE2OWMwMDExZWJiMTZhLmNsb3VkLnRlY2h6b25lLmlibS5jb22CMW1pbmltYWwtcHJvZC1rYWZrYS1ib290c3RyYXAuZXZlbnQtYXV0b21hdGlvbi5zdmOCGm1pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzMA0GCSqGSIb3DQEBDQUAA4ICAQBrhtj9QaWP1VUXTT2OWraA9/Jj/yTmSPdltWu0yvnK+sOt7UjZsnxwsPBTsax6LLeQUgMH+yKqNWLxR42GjfupnPDJCHCuOXAV7y4Hst8I8KlkdzZNDgVo7ApCWqqRYVqOc2LAwUoThWmSsljCcf+8tKp0EYVEOCp7Zf2SkTts/V6TGMYp0oN/MOaFWSC/rXmr/CFAV3uvi00k4ZZwp3gF0koES+kThH2tCsJh28mLTo6sn/soLwRYByK1ndBO3WC8r4OMtXxI9K40hZDO8NeNqP57ebpeojKozYrsp1yXe5rxKMREZfrQP9TMQWU/yjxX63YNKShtgz2wVydQrhDzDAV7oSZF/QtA5CyA7xd20RlGTA0GnKX43Nhr4X2MLKk+ehiMtAJi3Cn8AMA+I5PAd8k8TOPYlVSBGPWi2D7O6cb+ni0W5RNL/O9qBdmiwVb2+jmi3IruX3IMCEo+n4hQ+JHT3Zs2IcQoznACjIEdS+NfoLxrm+ovg/uqeejs7eH+49Gx5kR8cn/A6/0sijziiAVdf+iEhxl3FjbwGyEhMCq4rgelvO71qubGxvI1C4qkM1TpaVHjTKmeNQ3aKGoaBOeHE3/MFeHBjyrBKwxqJOsFP0fzK2S22Uvmsy6az/WrDMx7mj3xI/Ct2oWCkxAvN9Q5MvFtvnXwl6knMud5lQ==\n-----END CERTIFICATE-----\n"
+            },
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIFLTCCAxWgAwIBAgIURjdW2kAT5w+4JYb7gysgxu59OOUwDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDA0MDQxNDE0NDRaFw0yNDA3MDMxNDE0NDRaMC0xEzARBgNVBAoMCmlvLnN0cmltemkxFjAUBgNVBAMMDWNsdXN0ZXItY2EgdjAwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDT5VPOae6/v6eyaJej84BbtiWjGMwP97SklHN8sUlbyVWZSQIqxUj8qRO+Tu/6C8ZkrBG+aftMN9ht/52z1foeqomR2Xw0G8Qwrug/5OkFq07fY8RUqxQfrVelSrvaUprH5k07NJm6z8LvDd8lwWhYgOMQ/j3iHE0VG1xITSi2N96NCtP75owdnnDXq+1Ebm3/2zohiTFTXVQTOfiaQjiwqafXf6FuPoKpXIGiHcK+zeGp9lF4b+EN111MlKl9kzddACrPuQRO1ZZZBiwSyFu/pS8Af0lEZHIbD0i7t5A1mhcU4zPdTj8QRftJnY4fyrc8L2BAemYh6ibSIeWNrswStCWl4iBGdF8qyXtpqxWo2Ehnhn8fA4ZJZHb16nU+p8S8R2GRn3WOZ8yfUDEHQAQh2JzW77lNB1iPLtpn7QlGIz7WW/G6BHRTucmhcDVDdQAmhYYYTwQIibGmgCo1Qrj6iJazOtAIa9s68259YCjPg228sb2Ceou48G+KJyLBHp9bDf6ZigzRY6zxSvjVzceIJFcDUEnXU0hNXyb5eJbKZfRe05iY+diCSnmimSxed7t1i539yrXMRMB0ZIaAmq74y9BMh9Uxju6Q48J/6KUv5c//c4XG17XiWFuniZe8dxAY18rVdRW67T7y0IWrQqg141Jh8GQKddL3++TfkgD1fQIDAQABo0UwQzAdBgNVHQ4EFgQUBlbnwIyOQz9FgCCM3aYszVdboJcwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQENBQADggIBACXOiBPNeSnIoHdps4NgPqzq8r06EsIY27oHnCpi+V1g/IsHD6BK4SG3Blu5eQcGfISyYBKVd29Zelpjo14D+jT+SnsL/ty4Gi4jacghIsdOuZKExHUQPcshEQUcas287xAhnQZWXciRb2U+Sh/mZwGbbrs3n6RSPLUysxxEihSaTAJi38Ob+IGPjzlM9FZNXTRIkuQQvoeb+HruP+734+p6tWQH3zGrq+DVAaY8xN3eyPig7Nf3PKQR3UxZrPLtMXovnIu5QUx278f87T2FaEWQ/eECIRNUJOk3xbqmsMMQE/TyppiFg3YjTGFsEEZiXE2gpuhFeBxcyZJx9uyF7ved1K0jW6sSM358W5tVMvpgkpAAGLnGyDIldztjgeEYiAI1wGN7ntXnHzvIK2+3yralSS4nsKcuJMJje0tF7LXQBQ3qPEbJGRUZePWFUxOo8/FWCMoc7+4aTMqflipOBVPpdAkCyd1L/ZTab+oNQRRtqqS+w3CdGFKmQ2cFf+X4zTgpL++H1UDqPThodn8VC9/qhfqJisfxJR26ZdddrjRbcBS5NE8+A7xLZNiioNqwGkWVCQt5u6kyuCqm/UMkYWLI3hToP/+Rfdkv4vmOO2Lr5m5xzBdyoBF746jn15WB5PeNst+28SARlywyxd8QrmPBM2sv8vxuUSlNmOlt7yTW\n-----END CERTIFICATE-----\n"
+            }
+          ],
+          "hasSourcePersisted": true,
+          "certificatesAccepted": true,
+          "topicPayload": "{\n  \"S_PREF_PK_OP\": \"10657041875\",\n  \"P_AOR\": \"A\",\n  \"C_TP_MSG\": \"1200\",\n  \"C_TRT_MSG\": \"1\",\n  \"C_SOG_MITT\": \"88113\",\n  \"C_TP_SOG\": \"01\",\n  \"P_STAN\": \"524248\",\n  \"V_OP\": \"0.000\",\n  \"D_GAPPL\": \"2024-02-13\",\n  \"D_RGLM\": \"X\",\n  \"D_QDR\": \"2023-09-28\",\n  \"P_LTT_QDR\": \"99\",\n  \"C_ESITO\": \"000\",\n  \"C_MTVZ_ESITO\": \"00\",\n  \"E_RX_MSG_IN\": \"2024-02-13-16.45.22.000053\",\n  \"E_TX_MSG_OUT\": \"2024-02-13-16.45.22.000088\",\n  \"Q_REPEAT\": \"0\",\n  \"N_PGM\": \"J       \",\n  \"N_JOB\": \"J       \",\n  \"S_PREF_PK_MSG_IN\": \"188\",\n  \"S_PREF_PK_MSG_OUT\": \"116\",\n  \"C_MD_AUTZ\": \"2\",\n  \"C_PRCS_004\": \"000000\",\n  \"C_SOG_AUTH_058\": \"X\"\n}",
+          "topicAlias": ""
+        }
+      },
+      {
+        "viewName": "BPI010Z",
+        "nodeId": "3f2115b5-6d97-4bef-aefb-ce1c4a07e15b",
+        "nodeType": "source",
+        "configuration": {
+          "topicName": "BPI010Z",
+          "bootstrapServers": [
+            "minimal-prod-kafka-bootstrap.event-automation.svc:9093"
+          ],
+          "ssl": true,
+          "topic": "NEXI.BPI010Z",
+          "sampleMessage": "",
+          "fields": [
+            {
+              "name": "S_PREF_PK_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "P_AOR",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_BNC_PGTC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ND_CNCTTR_POS",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "S_TST_CLLGM_IMS",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "N_TRNS_ASSOC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_RRN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_BNC_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_PAN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_TP_MSG_INI",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_CA_PGTC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_CA_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_SOG_TRMT_PGTC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_SOG_TRMT_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_BNC_RGLM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "T_MSG_INI",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "S_MITT_REQ_RCVNG",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_DV",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "Q_OP_RGRP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "N_TERM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_SOG_CNCTTC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "I_CNVR_ISO8583",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "N_TERM_RSP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "I_SEND_ERASE",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "S_TST_MSG_AU",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_MD_AUTZ",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_RCH_GT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_NTFC_GT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_STRN_GT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_RCH_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_NTFC_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_STRN_EMTT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_RCH_GT_DO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_NTFC_EMTT_DO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_ST_STRN_EMTT_DO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_APPRVL",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "V_OP_AUTZ",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_MTVZ_STRN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "Q_OP_DUPL",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "N_PGM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "N_JOB",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "E_AGG_ULT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "T_MSG_INI_B",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "I_CNVR_BPO190",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "C_BNC_PRD",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "E_INSRM_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "DIFF_HHLOC",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            },
+            {
+              "name": "S_DT_ADZ_CRCT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true
+            }
+          ],
+          "watermark": {
+            "watermarkWithEventSource": true,
+            "topicLocalTimeRequired": true,
+            "timeUnit": "MINUTE",
+            "interval": 1,
+            "watermarkColumn": "event_time"
+          },
+          "configureNewSource": false,
+          "topicIdForReuse": "8317cb29-b146-4a08-b4d0-a5543849fe03",
+          "persistSourceTopic": true,
+          "isSourceEditable": true,
+          "format": "json",
+          "type": "SASL",
+          "username": "es-admin",
+          "password": "GLn1KYvjYUN67K7m371PYnguWan7Q0mY",
+          "mechanism": "SCRAM-SHA-512",
+          "certs": [
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIG2DCCBMCgAwIBAgIUDkC/eNHCtO1mQTWRNqzrPCqW3RYwDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDA0MDQxNDE1NDBaFw0yNDA3MDMxNDE1NDBaMDIxEzARBgNVBAoMCmlvLnN0cmltemkxGzAZBgNVBAMMEm1pbmltYWwtcHJvZC1rYWZrYTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMCkXiUPjy29aGyROWRbfPxGAhKgNSaesK61fGLGsU/leIc+yVsFXvMBGHuCZ8lcQBphv8k+/Z2zgIuzd+UazEDVVSTnE2SZwiQzpmMK6icqno/IX/pqQUIt9uk2+GMXX2BD5/7EFNelx+h/CR/M/ImfOMSB2T3D3QqTXFabik5CpD1AklPzhH6S/YyCAkts3ZeGuXHPV83XE7Rg3BzIyAvhjtJlh29TOHaaf4e4XmuPQ+fJEeeOZ6ghGeJa40k75t2N+ypN8ZyoFS/kq+p2GStIa2MOTl5lnV4s+UuPwkoAEEWalqoSEUYlXTDNunWbqilsQkGqlgBhbJDqo4aar+8CAwEAAaOCAukwggLlMIIC4QYDVR0RBIIC2DCCAtSCL21pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzLmV2ZW50LWF1dG9tYXRpb24uc3Zjgj1taW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9uLnN2Yy5jbHVzdGVyLmxvY2FsglJtaW5pbWFsLXByb2Qta2Fma2EtMS5taW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9uLnN2Yy5jbHVzdGVyLmxvY2FsglptaW5pbWFsLXByb2Qta2Fma2EtMS1ldmVudC1hdXRvbWF0aW9uLmFwcHMuNjVjMGExOGU3MWE2OWMwMDExZWJiMTZhLmNsb3VkLnRlY2h6b25lLmlibS5jb22CGm1pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzgjFtaW5pbWFsLXByb2Qta2Fma2EtYm9vdHN0cmFwLmV2ZW50LWF1dG9tYXRpb24uc3ZjgittaW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9ugi1taW5pbWFsLXByb2Qta2Fma2EtYm9vdHN0cmFwLmV2ZW50LWF1dG9tYXRpb26CP21pbmltYWwtcHJvZC1rYWZrYS1ib290c3RyYXAuZXZlbnQtYXV0b21hdGlvbi5zdmMuY2x1c3Rlci5sb2NhbIJibWluaW1hbC1wcm9kLWthZmthLWJvb3RzdHJhcC1ldmVudC1hdXRvbWF0aW9uLmFwcHMuNjVjMGExOGU3MWE2OWMwMDExZWJiMTZhLmNsb3VkLnRlY2h6b25lLmlibS5jb22CHG1pbmltYWwtcHJvZC1rYWZrYS1ib290c3RyYXCCRG1pbmltYWwtcHJvZC1rYWZrYS0xLm1pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzLmV2ZW50LWF1dG9tYXRpb24uc3ZjMA0GCSqGSIb3DQEBDQUAA4ICAQAVWyOwXbiUhxIznzhgdVcx1QyxCGwm1wltITITU+piqinP935TtttZ8k8zAJPN7gNqwdVjGbfxLyCDkdyslP4tW5GJ8fHHwYLQqiw26nwo9utDEaNJuPWogxOSYeKN1rEPyVrEPFQqNOF0LN5RJtYmzpmCaGVjjM45vbE4h1gBWiFcTrqStwMhXvr/ik7gwDvE5XjZjAKHxW9xuxIm5BkpowFqDND/tJVNpOdJ8kUemIQC4y3B84yyHEK2rA2sXv6O8nkbzjoj3/axLyaHNRRYyGRJi7ld4MAH51UESAVriZqX4c1sWVicZHDmDvi0QsvkUjIsEnCY9xCZnL7F9x8lXjaXiOJuU5c1f4yZFAzWBbVJe0VYxg83FhoOSl4dyFbwVeKP5IWKC7XBWkPu/42iojqeDlqcB9J3Q5Sb9WRdtqTp/nQHCw4wIo/Bt06bT44Xsmo5MBVecSaB4oFkeJEKaiO+Bdca6Xj77+8b1bBCwOxYhBiXTln9iQ7PDZmo6Dw4Ep2tMRsoTR8pugDYwS7KU7nLXSIZt4pPreY0rgzAdixGJDScIwCW8JbKduAGQc9/g3SZrv0kNGHzX1r1EJ9QFvFHnYv2m35z1+3Hf218c7tsPGZl9wQGC7Geof4khoe2FBqLZirVyWotx9tp9uOdJwG1PRTPkoh/hHsG2gIRjA==\n-----END CERTIFICATE-----\n"
+            },
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIFLTCCAxWgAwIBAgIURjdW2kAT5w+4JYb7gysgxu59OOUwDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDA0MDQxNDE0NDRaFw0yNDA3MDMxNDE0NDRaMC0xEzARBgNVBAoMCmlvLnN0cmltemkxFjAUBgNVBAMMDWNsdXN0ZXItY2EgdjAwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDT5VPOae6/v6eyaJej84BbtiWjGMwP97SklHN8sUlbyVWZSQIqxUj8qRO+Tu/6C8ZkrBG+aftMN9ht/52z1foeqomR2Xw0G8Qwrug/5OkFq07fY8RUqxQfrVelSrvaUprH5k07NJm6z8LvDd8lwWhYgOMQ/j3iHE0VG1xITSi2N96NCtP75owdnnDXq+1Ebm3/2zohiTFTXVQTOfiaQjiwqafXf6FuPoKpXIGiHcK+zeGp9lF4b+EN111MlKl9kzddACrPuQRO1ZZZBiwSyFu/pS8Af0lEZHIbD0i7t5A1mhcU4zPdTj8QRftJnY4fyrc8L2BAemYh6ibSIeWNrswStCWl4iBGdF8qyXtpqxWo2Ehnhn8fA4ZJZHb16nU+p8S8R2GRn3WOZ8yfUDEHQAQh2JzW77lNB1iPLtpn7QlGIz7WW/G6BHRTucmhcDVDdQAmhYYYTwQIibGmgCo1Qrj6iJazOtAIa9s68259YCjPg228sb2Ceou48G+KJyLBHp9bDf6ZigzRY6zxSvjVzceIJFcDUEnXU0hNXyb5eJbKZfRe05iY+diCSnmimSxed7t1i539yrXMRMB0ZIaAmq74y9BMh9Uxju6Q48J/6KUv5c//c4XG17XiWFuniZe8dxAY18rVdRW67T7y0IWrQqg141Jh8GQKddL3++TfkgD1fQIDAQABo0UwQzAdBgNVHQ4EFgQUBlbnwIyOQz9FgCCM3aYszVdboJcwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQENBQADggIBACXOiBPNeSnIoHdps4NgPqzq8r06EsIY27oHnCpi+V1g/IsHD6BK4SG3Blu5eQcGfISyYBKVd29Zelpjo14D+jT+SnsL/ty4Gi4jacghIsdOuZKExHUQPcshEQUcas287xAhnQZWXciRb2U+Sh/mZwGbbrs3n6RSPLUysxxEihSaTAJi38Ob+IGPjzlM9FZNXTRIkuQQvoeb+HruP+734+p6tWQH3zGrq+DVAaY8xN3eyPig7Nf3PKQR3UxZrPLtMXovnIu5QUx278f87T2FaEWQ/eECIRNUJOk3xbqmsMMQE/TyppiFg3YjTGFsEEZiXE2gpuhFeBxcyZJx9uyF7ved1K0jW6sSM358W5tVMvpgkpAAGLnGyDIldztjgeEYiAI1wGN7ntXnHzvIK2+3yralSS4nsKcuJMJje0tF7LXQBQ3qPEbJGRUZePWFUxOo8/FWCMoc7+4aTMqflipOBVPpdAkCyd1L/ZTab+oNQRRtqqS+w3CdGFKmQ2cFf+X4zTgpL++H1UDqPThodn8VC9/qhfqJisfxJR26ZdddrjRbcBS5NE8+A7xLZNiioNqwGkWVCQt5u6kyuCqm/UMkYWLI3hToP/+Rfdkv4vmOO2Lr5m5xzBdyoBF746jn15WB5PeNst+28SARlywyxd8QrmPBM2sv8vxuUSlNmOlt7yTW\n-----END CERTIFICATE-----\n"
+            }
+          ],
+          "hasSourcePersisted": true,
+          "certificatesAccepted": true,
+          "topicPayload": "{\n  \"S_PREF_PK_OP\": \"10656441465\",\n  \"P_AOR\": \"A\",\n  \"C_BNC_PGTC\": \"88113\",\n  \"C_ND_CNCTTR_POS\": \"HUBI\",\n  \"S_TST_CLLGM_IMS\": \"c\",\n  \"N_TRNS_ASSOC\": \"PHSG\",\n  \"C_RRN\": \"048000033474\",\n  \"C_BNC_EMTT\": \"05034\",\n  \"C_PAN\": \"999999999999\",\n  \"C_TP_MSG_INI\": \"1200\",\n  \"C_CA_PGTC\": \"HUBIS\",\n  \"C_CA_EMTT\": \"12928\",\n  \"C_SOG_TRMT_PGTC\": \"02008\",\n  \"C_SOG_TRMT_EMTT\": \"02008\",\n  \"C_BNC_RGLM\": \"02008\",\n  \"T_MSG_INI\": \"8vDy9GDw8mDx9/Lw8vRg8PJg8fnx8vnz9cX19fX19PHw8PDwQPPy+Pbw8PHy9vj3+Pjx8PBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBA5+fn50BAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAA\",\n  \"S_MITT_REQ_RCVNG\": \"12928        \",\n  \"C_DV\": \"978\",\n  \"Q_OP_RGRP\": \"561465\",\n  \"N_TERM\": \"HUB0\",\n  \"C_SOG_CNCTTC\": \"12928\",\n  \"I_CNVR_ISO8583\": \"4\",\n  \"N_TERM_RSP\": \"00  \",\n  \"I_SEND_ERASE\": \"c\",\n  \"S_TST_MSG_AU\": \"51010151134C\",\n  \"C_MD_AUTZ\": \"2\",\n  \"C_ST_OP\": \"L\",\n  \"C_ST_RCH_GT\": \"2\",\n  \"C_ST_NTFC_GT\": \"c\",\n  \"C_ST_STRN_GT\": \"c\",\n  \"C_ST_RCH_EMTT\": \"2\",\n  \"C_ST_NTFC_EMTT\": \"c\",\n  \"C_ST_STRN_EMTT\": \"c\",\n  \"C_ST_RCH_GT_DO\": \"c\",\n  \"C_ST_NTFC_EMTT_DO\": \"c\",\n  \"C_ST_STRN_EMTT_DO\": \"c\",\n  \"C_APPRVL\": \"823100\",\n  \"V_OP_AUTZ\": \"20.000\",\n  \"C_MTVZ_STRN\": \"c\",\n  \"Q_OP_DUPL\": \"0\",\n  \"N_PGM\": \"J       \",\n  \"N_JOB\": \"J       \",\n  \"E_AGG_ULT\": \"2024-02-17-13.38.07.000649\",\n  \"T_MSG_INI_B\": \"MTIwMPA8B9GI4IIAAAAABBAAAAExNzUwMzQ0OTAwMDE2MTAzMjE4MDAwMDAwMDAwMDAwMDAyMDAwNTYxNDY1MjQwMjE3MTAxMDUyMjAwNDI1MTE1MTAxMDE1MTEzNEMwMDEyNjAxNTAzNTU0MTIzMDkyODA1MDIwMDgwNTEyOTI4MDQ4MDAwMDMzNDc0MzA3Mjk0Njk0MjEzMDE2MDAxMTQgICA2NlBFVFJPTCBDT01QQU5ZIFNSTFxWSUEgTUFSVElSSSBESSBWSUEgRkFOSVxHSUFSUkVcOTUwMTQgICAgIENUIElUQTk3ODEwMk8HoAAAAUEAAYICHACVBYAAAIAAmgMjCSicAQCfAgYAAAAAIACfAwYAAAAAAACfBwL/AJ8QEAYBCgOkIAAIcAAAAAAABIafGgIDgJ8mCMxJGdWvvAMpnycBgJ82AgRInzcEaSZSCjA1ODgxMTMwNTEyOTI4ODExOTYwMDBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA\",\n  \"I_CNVR_BPO190\": \"*\",\n  \"C_BNC_PRD\": \"c\",\n  \"E_INSRM_OP\": \"2024-02-17-13.38.07.000528\",\n  \"DIFF_HHLOC\": \"-1\",\n  \"S_DT_ADZ_CRCT\": \"DEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw8Pny8fL4QPj58PP0AAAAAABAQEBAQPDw8PDDycPi\"\n}",
+          "topicAlias": ""
+        }
+      },
+      {
+        "viewName": "BPI013Z",
+        "nodeId": "d0831009-f379-4fd7-a473-bac47cf01d7a",
+        "nodeType": "source",
+        "configuration": {
+          "topicName": "BPI013Z",
+          "bootstrapServers": [
+            "minimal-prod-kafka-bootstrap.event-automation.svc:9093"
+          ],
+          "ssl": true,
+          "topic": "NEXI.BPI013Z",
+          "sampleMessage": "",
+          "fields": [
+            {
+              "name": "S_PREF_PK_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "080c06fe-d16c-411a-8eac-a1ec300161dd"
+            },
+            {
+              "name": "P_AOR",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "3c8db4c7-7fca-4528-a592-5677feeee43a"
+            },
+            {
+              "name": "C_TP_MSG",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "4ddba64d-9586-45ae-ab9a-d1e13cd35ccb"
+            },
+            {
+              "name": "C_TRT_MSG",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "f5fca629-7a45-4997-95bc-39c9acb9938e"
+            },
+            {
+              "name": "C_SOG_MITT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "994e8ccc-ad53-4bf8-843a-69e5e3908f6c"
+            },
+            {
+              "name": "C_TP_SOG",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "0d7641e9-83c2-410e-b7ad-a62dcf79ff41"
+            },
+            {
+              "name": "P_STAN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "3c47b8b4-77be-4a86-8172-256b76669d7c"
+            },
+            {
+              "name": "V_OP",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "df2b257c-64ca-427b-8c95-acf6ddb10dd6"
+            },
+            {
+              "name": "D_GAPPL",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "c5be8ee7-b053-4e41-b41b-3fc8759d6dfb"
+            },
+            {
+              "name": "D_RGLM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "310682e3-a7b1-41d8-bf55-7dc34bf41224"
+            },
+            {
+              "name": "D_QDR",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "18c7f9f4-ad13-4fa9-83f2-aeb2184128d7"
+            },
+            {
+              "name": "P_LTT_QDR",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "8a6e0e2a-6a8b-4132-8180-5c5c89de47df"
+            },
+            {
+              "name": "C_ESITO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "83bc28e9-a617-43a1-94c2-60fdaac27522"
+            },
+            {
+              "name": "C_MTVZ_ESITO",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "cf147c5c-c0d7-4d3d-a455-a47687ff6303"
+            },
+            {
+              "name": "E_RX_MSG_IN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "ea3a191b-e5ea-4f38-8c94-3490a2355221"
+            },
+            {
+              "name": "E_TX_MSG_OUT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": true,
+              "uuid": "66190236-d38d-4741-be7e-5f6985ec6748"
+            },
+            {
+              "name": "Q_REPEAT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "4ed4a66e-3f80-45ef-a67e-4804c0f73af5"
+            },
+            {
+              "name": "N_PGM",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "b4afb063-ba3b-4025-bbca-4235a8e449de"
+            },
+            {
+              "name": "N_JOB",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "cd8ec0cc-e36e-4ae1-9190-085a9b2196c4"
+            },
+            {
+              "name": "S_PREF_PK_MSG_IN",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "03363651-1668-4e18-8ced-92416b283a06"
+            },
+            {
+              "name": "S_PREF_PK_MSG_OUT",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "8571eb11-0d1e-4a7d-b71c-24c5ebacdb54"
+            },
+            {
+              "name": "C_MD_AUTZ",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "1df91646-547c-4d1d-8dee-e19b1d2da814"
+            },
+            {
+              "name": "C_PRCS_004",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "e484d4e9-88d0-4e25-bbfa-68ad12f2efb2"
+            },
+            {
+              "name": "C_SOG_AUTH_058",
+              "type": "STRING",
+              "jsonType": "string",
+              "selected": false,
+              "uuid": "05f4dacb-6f87-484f-a693-2b70fa496929"
+            }
+          ],
+          "watermark": {
+            "watermarkWithEventSource": true,
+            "topicLocalTimeRequired": true,
+            "timeUnit": "MINUTE",
+            "interval": 1,
+            "watermarkColumn": "event_time"
+          },
+          "configureNewSource": false,
+          "topicIdForReuse": "b3525f33-bca6-449f-aa8a-ab71ff86ca91",
+          "persistSourceTopic": true,
+          "isSourceEditable": true,
+          "format": "json",
+          "type": "SASL",
+          "username": "es-admin",
+          "password": "GLn1KYvjYUN67K7m371PYnguWan7Q0mY",
+          "mechanism": "SCRAM-SHA-512",
+          "certs": [
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIG2DCCBMCgAwIBAgIUaGBBucQcdVXFi1TbqQC5ueSfrXcwDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDA0MDQxNDE1NDBaFw0yNDA3MDMxNDE1NDBaMDIxEzARBgNVBAoMCmlvLnN0cmltemkxGzAZBgNVBAMMEm1pbmltYWwtcHJvZC1rYWZrYTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALy4A4EA5znBaQdZYhN1bVr7NjURVg1AxUca8sh1RrO469RpfwYvmj5LeTsCMV4ZUUi3Ly/G1rqev+U75ud+dmzbTVkbbE3nKQ8XhmvKKxfzCWt/q/D+JJjWe6dO7lk42fhdf4QD08r929TfXGwElOfCHeac/+iG7pywVHJGb/nTitewbEzqo4WQpXVnHPxZakRAh0naHNEREHcedYHiLe24GGHG6nUH8RX6hlNQzvqm+NKBZxdbkR0QfzG8QL8WFFsta6MQLf+iI1n7/IRCevU25wuxeELEIIC7MK6xoVpKY19n9AfbOQuF8TwjHEMxmfDEAYaOUD3SBfeiQ6HvOi8CAwEAAaOCAukwggLlMIIC4QYDVR0RBIIC2DCCAtSCUm1pbmltYWwtcHJvZC1rYWZrYS0yLm1pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzLmV2ZW50LWF1dG9tYXRpb24uc3ZjLmNsdXN0ZXIubG9jYWyCPW1pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzLmV2ZW50LWF1dG9tYXRpb24uc3ZjLmNsdXN0ZXIubG9jYWyCLW1pbmltYWwtcHJvZC1rYWZrYS1ib290c3RyYXAuZXZlbnQtYXV0b21hdGlvboIvbWluaW1hbC1wcm9kLWthZmthLWJyb2tlcnMuZXZlbnQtYXV0b21hdGlvbi5zdmOCGm1pbmltYWwtcHJvZC1rYWZrYS1icm9rZXJzgjFtaW5pbWFsLXByb2Qta2Fma2EtYm9vdHN0cmFwLmV2ZW50LWF1dG9tYXRpb24uc3ZjghxtaW5pbWFsLXByb2Qta2Fma2EtYm9vdHN0cmFwgittaW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9ugkRtaW5pbWFsLXByb2Qta2Fma2EtMi5taW5pbWFsLXByb2Qta2Fma2EtYnJva2Vycy5ldmVudC1hdXRvbWF0aW9uLnN2Y4JabWluaW1hbC1wcm9kLWthZmthLTItZXZlbnQtYXV0b21hdGlvbi5hcHBzLjY1YzBhMThlNzFhNjljMDAxMWViYjE2YS5jbG91ZC50ZWNoem9uZS5pYm0uY29tgj9taW5pbWFsLXByb2Qta2Fma2EtYm9vdHN0cmFwLmV2ZW50LWF1dG9tYXRpb24uc3ZjLmNsdXN0ZXIubG9jYWyCYm1pbmltYWwtcHJvZC1rYWZrYS1ib290c3RyYXAtZXZlbnQtYXV0b21hdGlvbi5hcHBzLjY1YzBhMThlNzFhNjljMDAxMWViYjE2YS5jbG91ZC50ZWNoem9uZS5pYm0uY29tMA0GCSqGSIb3DQEBDQUAA4ICAQBtFyHifjRJxOli6RiZvTUwk6h2/J8zlyp6ISvD0HIpSsHESYu0A7g9MhKGxjhC62syYmyEVugAyotNVDtHMzRCb7D8jldlt5Pi1I4Ze1y3jiWB5BAYvbFsne+HSQBQyRww9WdCN95J8yj+75rP3MzbSQKuo8IfLO3psCn/FsJSyT/u3L1SL0LpyPb6N/HJl4k50+xPTTp62cR01uCgMTijldXGM0j9jrXnjFm1PZh9Df0Y9G/e5HWG8PTmkmvwD5bjznSA5etJ4olMM/gseQk6uxIUi0Ve+VQO6BJtP4aBvlWLws+d/03SrrazfqMpdYRNtoQmKjd8Lyg9gOpa7dj2o4euKK0J/3O/Np9BliViObNeJaoS3Uhem71dJpmhDvn1F7pqSDz3PF+GBdP2ZZAfTrhpQN8/faiGT+UWc3xcGfH2iKJzs3RHB9v903SrPEyWHPo17uUURC9j/G3U8+ntMgMRtg623cdMJCnVWtbFfALyjOt7jmGjtRU2wEKWjEDtztQx0hQNFwCDSNnpDambZvcA/QTTVp/MFy47H68IlYu8bonh+7ILStXoggpUJGrOXc9G0CntVIqVbZM7eaAN3Cksop2IOkRUzqLP2V9Ff2r0CAqh0WDGHWxB37puuDOc7bZKa+Li1enA2OFPUo9E/0H0I5asSfaGZUNuOJ7/9A==\n-----END CERTIFICATE-----\n"
+            },
+            {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIIFLTCCAxWgAwIBAgIURjdW2kAT5w+4JYb7gysgxu59OOUwDQYJKoZIhvcNAQENBQAwLTETMBEGA1UECgwKaW8uc3RyaW16aTEWMBQGA1UEAwwNY2x1c3Rlci1jYSB2MDAeFw0yNDA0MDQxNDE0NDRaFw0yNDA3MDMxNDE0NDRaMC0xEzARBgNVBAoMCmlvLnN0cmltemkxFjAUBgNVBAMMDWNsdXN0ZXItY2EgdjAwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDT5VPOae6/v6eyaJej84BbtiWjGMwP97SklHN8sUlbyVWZSQIqxUj8qRO+Tu/6C8ZkrBG+aftMN9ht/52z1foeqomR2Xw0G8Qwrug/5OkFq07fY8RUqxQfrVelSrvaUprH5k07NJm6z8LvDd8lwWhYgOMQ/j3iHE0VG1xITSi2N96NCtP75owdnnDXq+1Ebm3/2zohiTFTXVQTOfiaQjiwqafXf6FuPoKpXIGiHcK+zeGp9lF4b+EN111MlKl9kzddACrPuQRO1ZZZBiwSyFu/pS8Af0lEZHIbD0i7t5A1mhcU4zPdTj8QRftJnY4fyrc8L2BAemYh6ibSIeWNrswStCWl4iBGdF8qyXtpqxWo2Ehnhn8fA4ZJZHb16nU+p8S8R2GRn3WOZ8yfUDEHQAQh2JzW77lNB1iPLtpn7QlGIz7WW/G6BHRTucmhcDVDdQAmhYYYTwQIibGmgCo1Qrj6iJazOtAIa9s68259YCjPg228sb2Ceou48G+KJyLBHp9bDf6ZigzRY6zxSvjVzceIJFcDUEnXU0hNXyb5eJbKZfRe05iY+diCSnmimSxed7t1i539yrXMRMB0ZIaAmq74y9BMh9Uxju6Q48J/6KUv5c//c4XG17XiWFuniZe8dxAY18rVdRW67T7y0IWrQqg141Jh8GQKddL3++TfkgD1fQIDAQABo0UwQzAdBgNVHQ4EFgQUBlbnwIyOQz9FgCCM3aYszVdboJcwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAQYwDQYJKoZIhvcNAQENBQADggIBACXOiBPNeSnIoHdps4NgPqzq8r06EsIY27oHnCpi+V1g/IsHD6BK4SG3Blu5eQcGfISyYBKVd29Zelpjo14D+jT+SnsL/ty4Gi4jacghIsdOuZKExHUQPcshEQUcas287xAhnQZWXciRb2U+Sh/mZwGbbrs3n6RSPLUysxxEihSaTAJi38Ob+IGPjzlM9FZNXTRIkuQQvoeb+HruP+734+p6tWQH3zGrq+DVAaY8xN3eyPig7Nf3PKQR3UxZrPLtMXovnIu5QUx278f87T2FaEWQ/eECIRNUJOk3xbqmsMMQE/TyppiFg3YjTGFsEEZiXE2gpuhFeBxcyZJx9uyF7ved1K0jW6sSM358W5tVMvpgkpAAGLnGyDIldztjgeEYiAI1wGN7ntXnHzvIK2+3yralSS4nsKcuJMJje0tF7LXQBQ3qPEbJGRUZePWFUxOo8/FWCMoc7+4aTMqflipOBVPpdAkCyd1L/ZTab+oNQRRtqqS+w3CdGFKmQ2cFf+X4zTgpL++H1UDqPThodn8VC9/qhfqJisfxJR26ZdddrjRbcBS5NE8+A7xLZNiioNqwGkWVCQt5u6kyuCqm/UMkYWLI3hToP/+Rfdkv4vmOO2Lr5m5xzBdyoBF746jn15WB5PeNst+28SARlywyxd8QrmPBM2sv8vxuUSlNmOlt7yTW\n-----END CERTIFICATE-----\n"
+            }
+          ],
+          "hasSourcePersisted": true,
+          "certificatesAccepted": true,
+          "topicPayload": "{\"S_PREF_PK_OP\":\"10000000251\",\"P_AOR\":\"A\",\"C_TP_MSG\":\"1210\",\"C_TRT_MSG\":\"2\",\"C_SOG_MITT\":\"12928\",\"C_TP_SOG\":\"01\",\"P_STAN\":\"808014\",\"V_OP\":\"7.900\",\"D_GAPPL\":\"2024-02-14\",\"D_RGLM\":\"xz\",\"D_QDR\":\"2023-10-14\",\"P_LTT_QDR\":\"99\",\"C_ESITO\":\"000\",\"C_MTVZ_ESITO\":\"00\",\"E_RX_MSG_IN\":\"2024-02-14-15.16.47.000018\",\"E_TX_MSG_OUT\":\"2024-02-14-15.16.46.000947\",\"Q_REPEAT\":\"0\",\"N_PGM\":\"J       \",\"N_JOB\":\"J       \",\"S_PREF_PK_MSG_IN\":\"147\",\"S_PREF_PK_MSG_OUT\":\"147\",\"C_MD_AUTZ\":\"2\",\"C_PRCS_004\":\"000000\",\"C_SOG_AUTH_058\":\"z\"}\n",
+          "topicAlias": ""
+        }
+      },
+      {
+        "viewName": "10Z JOIN 12Z",
+        "nodeId": "4c4271e0-4573-4888-bb30-6a3c84516a2e",
+        "nodeType": "intervalJoin",
+        "configuration": {
+          "joinCondition": "`BPI010Z`.`S_PREF_PK_OP` = `12Z TO Timestamps`.`S_PREF_PK_OP`",
+          "timeCondition": {
+            "watchedTimeEvent": {
+              "table": "12Z TO Timestamps",
+              "column": "event_time"
+            },
+            "baseTimeEvent": {
+              "table": "BPI010Z",
+              "column": "event_time"
+            },
+            "start": {
+              "interval": -30,
+              "timeUnit": "MINUTE"
+            },
+            "end": {
+              "interval": 30,
+              "timeUnit": "MINUTE"
+            }
+          },
+          "columns": [
+            {
+              "outputColumn": "S_PREF_PK_OP_10",
+              "input": {
+                "column": "S_PREF_PK_OP",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_BNC_PGTC",
+              "input": {
+                "column": "C_BNC_PGTC",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_BNC_EMTT",
+              "input": {
+                "column": "C_BNC_EMTT",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_BNC_RGLM",
+              "input": {
+                "column": "C_BNC_RGLM",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_ST_RCH_GT",
+              "input": {
+                "column": "C_ST_RCH_GT",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_ST_RCH_EMTT",
+              "input": {
+                "column": "C_ST_RCH_EMTT",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_APPRVL",
+              "input": {
+                "column": "C_APPRVL",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "V_OP_AUTZ",
+              "input": {
+                "column": "V_OP_AUTZ",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "event_time_10",
+              "input": {
+                "column": "event_time",
+                "table": "BPI010Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "S_PREF_PK_OP",
+              "input": {
+                "column": "S_PREF_PK_OP",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_TIMESTMP_12",
+              "input": {
+                "column": "E_RX_MSG_IN_TIMESTMP_12",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_TIMESTMP_12",
+              "input": {
+                "column": "E_TX_MSG_OUT_TIMESTMP_12",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "event_time",
+              "input": {
+                "column": "event_time",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT",
+              "input": {
+                "column": "E_TX_MSG_OUT",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN",
+              "input": {
+                "column": "E_RX_MSG_IN",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_TRT_MSG",
+              "input": {
+                "column": "C_TRT_MSG",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "C_TP_MSG",
+              "input": {
+                "column": "C_TP_MSG",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_DATE_12",
+              "input": {
+                "column": "E_RX_MSG_IN_DATE_12",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_DATE_12",
+              "input": {
+                "column": "E_TX_MSG_OUT_DATE_12",
+                "table": "12Z TO Timestamps"
+              },
+              "expression": ""
+            }
+          ]
+        }
+      },
+      {
+        "viewName": "1210 JOIN 13",
+        "nodeId": "ee14233f-b157-4c4d-baa8-3b35a3c12dc6",
+        "nodeType": "intervalJoin",
+        "configuration": {
+          "joinCondition": "`10Z JOIN 12Z`.`S_PREF_PK_OP_10` = `13Z To Timestamps`.`S_PREF_PK_OP`",
+          "timeCondition": {
+            "watchedTimeEvent": {
+              "table": "13Z To Timestamps",
+              "column": "event_time"
+            },
+            "baseTimeEvent": {
+              "table": "10Z JOIN 12Z",
+              "column": "event_time"
+            },
+            "start": {
+              "interval": -30,
+              "timeUnit": "MINUTE"
+            },
+            "end": {
+              "interval": 30,
+              "timeUnit": "MINUTE"
+            }
+          },
+          "columns": [
+            {
+              "outputColumn": "C_BNC_EMTT",
+              "expression": "",
+              "input": {
+                "column": "C_BNC_EMTT",
+                "table": "10Z JOIN 12Z"
+              }
+            },
+            {
+              "outputColumn": "C_BNC_RGLM",
+              "expression": "",
+              "input": {
+                "column": "C_BNC_RGLM",
+                "table": "10Z JOIN 12Z"
+              }
+            },
+            {
+              "outputColumn": "C_BNC_PGTC",
+              "expression": "",
+              "input": {
+                "column": "C_BNC_PGTC",
+                "table": "10Z JOIN 12Z"
+              }
+            },
+            {
+              "outputColumn": "C_ST_RCH_GT",
+              "expression": "",
+              "input": {
+                "column": "C_ST_RCH_GT",
+                "table": "10Z JOIN 12Z"
+              }
+            },
+            {
+              "outputColumn": "C_ST_RCH_EMTT",
+              "expression": "",
+              "input": {
+                "column": "C_ST_RCH_EMTT",
+                "table": "10Z JOIN 12Z"
+              }
+            },
+            {
+              "outputColumn": "C_APPRVL",
+              "expression": "",
+              "input": {
+                "column": "C_APPRVL",
+                "table": "10Z JOIN 12Z"
+              }
+            },
+            {
+              "outputColumn": "S_PREF_PK_OP",
+              "expression": "",
+              "input": {
+                "column": "S_PREF_PK_OP",
+                "table": "10Z JOIN 12Z"
+              }
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_12",
+              "input": {
+                "column": "E_RX_MSG_IN",
+                "table": "10Z JOIN 12Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_12",
+              "input": {
+                "column": "E_TX_MSG_OUT",
+                "table": "10Z JOIN 12Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_TIMESTMP_12",
+              "input": {
+                "column": "E_RX_MSG_IN_TIMESTMP_12",
+                "table": "10Z JOIN 12Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_TIMESTMP_12",
+              "input": {
+                "column": "E_TX_MSG_OUT_TIMESTMP_12",
+                "table": "10Z JOIN 12Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_13",
+              "input": {
+                "column": "E_RX_MSG_IN",
+                "table": "13Z To Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_13",
+              "input": {
+                "column": "E_TX_MSG_OUT",
+                "table": "13Z To Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_TIMESTMP_13",
+              "input": {
+                "column": "E_RX_MSG_IN_13_TIMESTMP",
+                "table": "13Z To Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_TIMESTMP_13",
+              "input": {
+                "column": "E_TX_MSG_OUT_13_TIMESTMP",
+                "table": "13Z To Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_13_DATE",
+              "input": {
+                "column": "E_RX_MSG_IN_13_DATE",
+                "table": "13Z To Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_13_DATE",
+              "input": {
+                "column": "E_TX_MSG_OUT_13_DATE",
+                "table": "13Z To Timestamps"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_RX_MSG_IN_DATE_12",
+              "input": {
+                "column": "E_RX_MSG_IN_DATE_12",
+                "table": "10Z JOIN 12Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "E_TX_MSG_OUT_DATE_12",
+              "input": {
+                "column": "E_TX_MSG_OUT_DATE_12",
+                "table": "10Z JOIN 12Z"
+              },
+              "expression": ""
+            },
+            {
+              "outputColumn": "V_OP_AUTZ",
+              "input": {
+                "column": "V_OP_AUTZ",
+                "table": "10Z JOIN 12Z"
+              },
+              "expression": ""
+            }
+          ]
+        }
+      },
+      {
+        "viewName": "filter_1",
+        "nodeId": "20f395a0-d5e9-417e-9746-6df09281a81e",
+        "nodeType": "filter",
+        "configuration": {
+          "statement": "CHAR_LENGTH(E_RX_MSG_IN) > 0 AND CHAR_LENGTH(E_TX_MSG_OUT) > 0 "
+        }
+      },
+      {
+        "viewName": "Timestamps to microseconds",
+        "nodeId": "2c46de40-eae2-4450-9665-f1b0d7b5e9b9",
+        "nodeType": "transform",
+        "configuration": {
+          "columns": [
+            {
+              "input": {
+                "column": "C_BNC_EMTT"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_EMTT"
+            },
+            {
+              "input": {
+                "column": "C_BNC_RGLM"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_RGLM"
+            },
+            {
+              "input": {
+                "column": "C_BNC_PGTC"
+              },
+              "expression": "",
+              "outputColumn": "C_BNC_PGTC"
+            },
+            {
+              "input": {
+                "column": "C_ST_RCH_GT"
+              },
+              "expression": "",
+              "outputColumn": "C_ST_RCH_GT"
+            },
+            {
+              "input": {
+                "column": "C_ST_RCH_EMTT"
+              },
+              "expression": "",
+              "outputColumn": "C_ST_RCH_EMTT"
+            },
+            {
+              "input": {
+                "column": "C_APPRVL"
+              },
+              "expression": "",
+              "outputColumn": "C_APPRVL"
+            },
+            {
+              "input": {
+                "column": "S_PREF_PK_OP"
+              },
+              "expression": "",
+              "outputColumn": "S_PREF_PK_OP"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN_12"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN_12"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT_12"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT_12"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN_TIMESTMP_12"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN_TIMESTMP_12"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT_TIMESTMP_12"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT_TIMESTMP_12"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN_13"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN_13"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT_13"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT_13"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN_TIMESTMP_13"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN_TIMESTMP_13"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT_TIMESTMP_13"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT_TIMESTMP_13"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN_13_DATE"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN_13_DATE"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT_13_DATE"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT_13_DATE"
+            },
+            {
+              "input": {
+                "column": "E_RX_MSG_IN_DATE_12"
+              },
+              "expression": "",
+              "outputColumn": "E_RX_MSG_IN_DATE_12"
+            },
+            {
+              "input": {
+                "column": "E_TX_MSG_OUT_DATE_12"
+              },
+              "expression": "",
+              "outputColumn": "E_TX_MSG_OUT_DATE_12"
+            },
+            {
+              "outputColumn": "V_OP_AUTZ",
+              "input": {
+                "column": "V_OP_AUTZ"
+              },
+              "expression": ""
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_TX_MSG_OUT_12_MICROSECONDS",
+              "expression": "(((YEAR(E_TX_MSG_OUT_DATE_12) * 31556926 ) + (MONTH(E_TX_MSG_OUT_DATE_12) * 2629743) + (DAYOFMONTH(E_TX_MSG_OUT_DATE_12) * 86400) + (HOUR(E_TX_MSG_OUT_TIMESTMP_12) * 3600) + (MINUTE(E_TX_MSG_OUT_TIMESTMP_12) * 60) + (SECOND(E_TX_MSG_OUT_TIMESTMP_12))) * 1000000 )+ (CAST (SUBSTRING(`E_TX_MSG_OUT_12` FROM 21) AS BIGINT))\n"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_RX_MSG_IN_12_MICROSECONDS",
+              "expression": "(((YEAR(E_RX_MSG_IN_DATE_12) * 31556926 ) + (MONTH(E_RX_MSG_IN_DATE_12) * 2629743) + (DAYOFMONTH(E_RX_MSG_IN_DATE_12) * 86400) + (HOUR(E_RX_MSG_IN_TIMESTMP_12) * 3600) + (MINUTE(E_RX_MSG_IN_TIMESTMP_12) * 60) + (SECOND(E_RX_MSG_IN_TIMESTMP_12))) * 1000000) + (CAST (SUBSTRING(`E_RX_MSG_IN_12` FROM 21) AS BIGINT)) "
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_RX_MSG_IN_13_MICROSECONDS",
+              "expression": "(((YEAR( E_RX_MSG_IN_13_DATE) * 31556926 ) + (MONTH( E_RX_MSG_IN_13_DATE) * 2629743) + (DAYOFMONTH( E_RX_MSG_IN_13_DATE) * 86400) + (HOUR(E_RX_MSG_IN_TIMESTMP_13) * 3600) + (MINUTE(E_RX_MSG_IN_TIMESTMP_13) * 60) + (SECOND(E_RX_MSG_IN_TIMESTMP_13))) * 1000000) + (CAST (SUBSTRING(`E_RX_MSG_IN_13` FROM 21) AS BIGINT))"
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "E_TX_MSG_OUT_13_MICROSECONDS",
+              "expression": "(((YEAR(E_TX_MSG_OUT_13_DATE) * 31556926 ) + (MONTH(E_TX_MSG_OUT_13_DATE) * 2629743) + (DAYOFMONTH(E_TX_MSG_OUT_13_DATE) * 86400) + (HOUR(E_TX_MSG_OUT_TIMESTMP_13) * 3600) + (MINUTE(E_TX_MSG_OUT_TIMESTMP_13) * 60) + (SECOND(E_TX_MSG_OUT_TIMESTMP_13))) * 1000000) + (CAST (SUBSTRING(`E_TX_MSG_OUT_13` FROM 21) AS BIGINT)) "
+            },
+            {
+              "input": {
+                "column": ""
+              },
+              "outputColumn": "ESITO",
+              "expression": "IF (C_APPRVL = '', IF(C_ST_RCH_GT   = '1', 'TimeOut', IF(C_ST_RCH_GT   = '2' AND C_ST_RCH_EMTT = '2', 'Negata Issuer', IF(C_ST_RCH_GT   = '2' AND C_ST_RCH_EMTT = '', 'Negata Interna', 'AUTORIZZATA'))), 'AUTORIZZATA')\n",
+              "castType": "STRING"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "flowDetails": {
+    "flowName": "Prima Vista - V2 ",
+    "flowDescription": "Flusso che estrae i dati grezzi che arrivano da CDC creando una vista logica",
+    "flowVersion": 2
+  }
+}
