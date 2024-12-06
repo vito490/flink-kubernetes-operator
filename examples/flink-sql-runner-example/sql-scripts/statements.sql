@@ -42,7 +42,7 @@ MIIFLTCCAxWgAwIBAgIURjdW2kAT5w+4JYb7gysgxu59OOUwDQYJKoZIhvcNAQENBQAwLTETMBEGA1UE
 -----END CERTIFICATE-----
 ',
 
-    'properties.sasl.jaas.config' = 'org.apache.kafka.common.security.scram.ScramLoginModule required username="es-admin" password="GLn1KYvjYUN67K7m371PYnguWan7Q0mY";'
+    'properties.sasl.jaas.config' = 'org.apache.kafka.common.security.scram.ScramLoginModule required username=${ENV} password="GLn1KYvjYUN67K7m371PYnguWan7Q0mY";'
 );
 
 CREATE TABLE `BPI012Z`

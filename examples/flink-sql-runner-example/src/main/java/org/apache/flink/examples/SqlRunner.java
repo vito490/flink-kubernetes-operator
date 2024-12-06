@@ -61,6 +61,7 @@ public class SqlRunner {
             Matcher setMatcher = SET_STATEMENT_PATTERN.matcher(statement.trim());
 
             if (setMatcher.matches()) {
+                
                 // Handle SET statements
                 String key = setMatcher.group(1);
                 String value = setMatcher.group(2);

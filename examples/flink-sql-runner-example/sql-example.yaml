@@ -23,7 +23,7 @@ spec:
     json.map-null-key.mode: DROP
     state.backend.rocksdb.use-bloom-filter: 'true'
     high-availability.type: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
-    restart-strategy.failure-rate.max-failures-per-interval: '10'
+    restart-strategy.failure-rate.max-fail  ures-per-interval: '10'
     state.backend.incremental: 'true'
     taskmanager.numberOfTaskSlots: '2'
     state.checkpoints.num-retained: '3'
@@ -57,6 +57,7 @@ spec:
     metadata:
       name: pod-template
     spec:
+      
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
