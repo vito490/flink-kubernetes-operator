@@ -31,6 +31,7 @@ import org.apache.flink.autoscaler.state.InMemoryAutoScalerStateStore;
 import org.apache.flink.autoscaler.topology.IOMetrics;
 import org.apache.flink.autoscaler.topology.JobTopology;
 import org.apache.flink.autoscaler.topology.VertexInfo;
+import org.apache.flink.runtime.instance.SlotSharingGroupId;
 import org.apache.flink.runtime.jobgraph.JobVertexID;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 
@@ -68,6 +69,7 @@ public class MetricsCollectionAndEvaluationTest {
     private InMemoryAutoScalerStateStore<JobID, JobAutoScalerContext<JobID>> stateStore;
 
     private JobVertexID source1, source2, map, sink;
+    private SlotSharingGroupId slotSharingGroupId;
     private JobTopology topology;
 
     private Clock clock;
@@ -86,6 +88,7 @@ public class MetricsCollectionAndEvaluationTest {
         source2 = new JobVertexID();
         map = new JobVertexID();
         sink = new JobVertexID();
+        slotSharingGroupId = new SlotSharingGroupId();
 
         topology =
                 new JobTopology(
@@ -184,7 +187,8 @@ public class MetricsCollectionAndEvaluationTest {
                 new HashMap<>(),
                 new ScalingTracking(),
                 clock.instant(),
-                topology);
+                topology,
+                new DelayedScaleDown());
 
         var scaledParallelism = ScalingExecutorTest.getScaledParallelism(stateStore, context);
         assertEquals(4, scaledParallelism.size());
@@ -229,7 +233,7 @@ public class MetricsCollectionAndEvaluationTest {
     }
 
     @Test
-    public void testKafkaPartitionMaxParallelism() throws Exception {
+    public void testKafkaPulsarNumPartitions() throws Exception {
         setDefaultMetrics(metricsCollector);
         metricsCollector.updateMetrics(context, stateStore);
 
@@ -237,13 +241,8 @@ public class MetricsCollectionAndEvaluationTest {
         metricsCollector.setClock(clock);
 
         var collectedMetrics = metricsCollector.updateMetrics(context, stateStore);
-
-        assertEquals(720, collectedMetrics.getJobTopology().get(source1).getMaxParallelism());
-        assertEquals(720, collectedMetrics.getJobTopology().get(source2).getMaxParallelism());
-
         clock = Clock.fixed(Instant.now().plus(Duration.ofSeconds(3)), ZoneId.systemDefault());
         metricsCollector.setClock(clock);
-
         metricsCollector.setMetricNames(
                 Map.of(
                         source1,
@@ -256,8 +255,26 @@ public class MetricsCollectionAndEvaluationTest {
                                 "1.Source__Kafka_Source_(testTopic).KafkaSourceReader.topic.testTopic.partition.3.currentOffset")));
 
         collectedMetrics = metricsCollector.updateMetrics(context, stateStore);
-        assertEquals(5, collectedMetrics.getJobTopology().get(source1).getMaxParallelism());
-        assertEquals(720, collectedMetrics.getJobTopology().get(source2).getMaxParallelism());
+        assertEquals(5, collectedMetrics.getJobTopology().get(source1).getNumSourcePartitions());
+
+        metricsCollector.setMetricNames(
+                Map.of(
+                        source2,
+                        List.of(
+                                "0.Source__pulsar_source[1].PulsarConsumer"
+                                        + ".persistent_//public/default/testTopic-partition-1.d842f.numMsgsReceived",
+                                "0.Source__pulsar_source[1].PulsarConsumer"
+                                        + ".persistent_//public/default/testTopic-partition-1.660d2.numMsgsReceived",
+                                "0.Source__pulsar_source[1].PulsarConsumer"
+                                        + ".persistent_//public/default/testTopic-partition-2.d356f.numMsgsReceived",
+                                "0.Source__pulsar_source[1].PulsarConsumer"
+                                        + ".persistent_//public/default/otherTopic-partition-2.m953d.numMsgsReceived",
+                                "0.Source__pulsar_source[1].PulsarConsumer"
+                                        + ".persistent_//public/default/testTopic-partition-3.e427h.numMsgsReceived",
+                                "0.Source__pulsar_source[1].PulsarConsumer"
+                                        + ".persistent_//public/default/testTopic-partition-4.m962n.numMsgsReceived")));
+        collectedMetrics = metricsCollector.updateMetrics(context, stateStore);
+        assertEquals(5, collectedMetrics.getJobTopology().get(source2).getNumSourcePartitions());
     }
 
     @Test
@@ -342,7 +359,7 @@ public class MetricsCollectionAndEvaluationTest {
     public void testTolerateAbsenceOfPendingRecordsMetric() throws Exception {
         var topology = new JobTopology(new VertexInfo(source1, Map.of(), 5, 720));
 
-        metricsCollector = new TestingMetricsCollector(topology);
+        metricsCollector = new TestingMetricsCollector<>(topology);
         metricsCollector.setJobUpdateTs(startTime);
 
         metricsCollector.updateMetrics(
@@ -356,6 +373,7 @@ public class MetricsCollectionAndEvaluationTest {
         var conf = context.getConfiguration();
         conf.set(AutoScalerOptions.STABILIZATION_INTERVAL, Duration.ZERO);
         conf.set(AutoScalerOptions.METRICS_WINDOW, Duration.ofSeconds(2));
+        conf.set(AutoScalerOptions.SCALE_DOWN_INTERVAL, Duration.ofSeconds(0));
 
         metricsCollector.setClock(clock);
 
@@ -402,7 +420,8 @@ public class MetricsCollectionAndEvaluationTest {
                 new HashMap<>(),
                 new ScalingTracking(),
                 clock.instant(),
-                topology);
+                topology,
+                new DelayedScaleDown());
         var scaledParallelism = ScalingExecutorTest.getScaledParallelism(stateStore, context);
         assertEquals(1, scaledParallelism.get(source1));
     }
@@ -415,7 +434,13 @@ public class MetricsCollectionAndEvaluationTest {
                 new JobTopology(
                         new VertexInfo(s1, Map.of(), 10, 720),
                         new VertexInfo(
-                                finished, Map.of(), 10, 720, true, IOMetrics.FINISHED_METRICS));
+                                finished,
+                                null,
+                                Map.of(),
+                                10,
+                                720,
+                                true,
+                                IOMetrics.FINISHED_METRICS));
 
         metricsCollector = new TestingMetricsCollector(topology);
         metricsCollector.setJobUpdateTs(startTime);
@@ -606,6 +631,9 @@ public class MetricsCollectionAndEvaluationTest {
         metricsCollector = new TestingMetricsCollector<>(topology);
         metricsCollector.setJobUpdateTs(startTime);
 
+        var conf = context.getConfiguration();
+        conf.set(AutoScalerOptions.SCALE_DOWN_INTERVAL, Duration.ofSeconds(0));
+
         metricsCollector.updateMetrics(
                 source1,
                 TestMetrics.builder()
@@ -653,7 +681,8 @@ public class MetricsCollectionAndEvaluationTest {
                 new HashMap<>(),
                 new ScalingTracking(),
                 clock.instant(),
-                topology);
+                topology,
+                new DelayedScaleDown());
         var scaledParallelism = ScalingExecutorTest.getScaledParallelism(stateStore, context);
         assertEquals(1, scaledParallelism.get(source1));
 

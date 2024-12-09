@@ -148,33 +148,41 @@ public class FlinkConfigBuilder {
                 REST_SERVICE_EXPOSED_TYPE, KubernetesConfigOptions.ServiceExposedType.ClusterIP);
         // Set 'web.cancel.enable' to false to avoid users accidentally cancelling jobs.
         setDefaultConf(CANCEL_ENABLE, false);
-
-        if (spec.getJob() != null) {
-            // Set 'pipeline.name' to resource name by default for application deployments.
-            setDefaultConf(PipelineOptions.NAME, clusterId);
-
-            // With last-state upgrade mode, set the default value of
-            // 'execution.checkpointing.interval'
-            // to 5 minutes when HA is enabled.
-            if (spec.getJob().getUpgradeMode() == UpgradeMode.LAST_STATE) {
-                setDefaultConf(
-                        ExecutionCheckpointingOptions.CHECKPOINTING_INTERVAL,
-                        DEFAULT_CHECKPOINTING_INTERVAL);
-            }
-
-            // We need to keep the application clusters around for proper operator behaviour
-            effectiveConfig.set(SHUTDOWN_ON_APPLICATION_FINISH, false);
-            if (HighAvailabilityMode.isHighAvailabilityModeActivated(effectiveConfig)) {
-                setDefaultConf(SUBMIT_FAILED_JOB_ON_APPLICATION_ERROR, true);
-            }
-
-            setDefaultConf(
-                    ExecutionCheckpointingOptions.EXTERNALIZED_CHECKPOINT,
-                    CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-        }
-
         effectiveConfig.set(FLINK_VERSION, spec.getFlinkVersion());
         return this;
+    }
+
+    protected static void applyJobConfig(String name, Configuration conf, JobSpec jobSpec) {
+        // Set 'pipeline.name' to resource name by default for application deployments.
+        setDefaultConf(conf, PipelineOptions.NAME, name);
+
+        // With last-state upgrade mode, set the default value of
+        // 'execution.checkpointing.interval'
+        // to 5 minutes when HA is enabled.
+        if (jobSpec.getUpgradeMode() == UpgradeMode.LAST_STATE) {
+            setDefaultConf(
+                    conf,
+                    ExecutionCheckpointingOptions.CHECKPOINTING_INTERVAL,
+                    DEFAULT_CHECKPOINTING_INTERVAL);
+        }
+        setDefaultConf(
+                conf,
+                ExecutionCheckpointingOptions.EXTERNALIZED_CHECKPOINT,
+                CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+
+        if (jobSpec.getAllowNonRestoredState() != null) {
+            conf.set(
+                    SavepointConfigOptions.SAVEPOINT_IGNORE_UNCLAIMED_STATE,
+                    jobSpec.getAllowNonRestoredState());
+        }
+
+        if (jobSpec.getEntryClass() != null) {
+            conf.set(ApplicationConfiguration.APPLICATION_MAIN_CLASS, jobSpec.getEntryClass());
+        }
+
+        if (jobSpec.getArgs() != null) {
+            conf.set(ApplicationConfiguration.APPLICATION_ARGS, Arrays.asList(jobSpec.getArgs()));
+        }
     }
 
     protected FlinkConfigBuilder applyLogConfiguration() throws IOException {
@@ -241,16 +249,6 @@ public class FlinkConfigBuilder {
         return this;
     }
 
-    protected FlinkConfigBuilder applyIngressDomain() {
-        // Web UI
-        if (spec.getIngress() != null) {
-            effectiveConfig.set(
-                    REST_SERVICE_EXPOSED_TYPE,
-                    KubernetesConfigOptions.ServiceExposedType.ClusterIP);
-        }
-        return this;
-    }
-
     protected FlinkConfigBuilder applyServiceAccount() {
         if (spec.getServiceAccount() != null) {
             effectiveConfig.set(
@@ -304,29 +302,18 @@ public class FlinkConfigBuilder {
                     DeploymentOptions.TARGET, KubernetesDeploymentTarget.APPLICATION.getName());
 
             if (jobSpec.getJarURI() != null) {
-                final URI uri = new URI(jobSpec.getJarURI());
                 effectiveConfig.set(
-                        PipelineOptions.JARS, Collections.singletonList(uri.toString()));
+                        PipelineOptions.JARS,
+                        Collections.singletonList(new URI(jobSpec.getJarURI()).toString()));
             }
-
             effectiveConfig.set(CoreOptions.DEFAULT_PARALLELISM, getParallelism());
 
-            if (jobSpec.getAllowNonRestoredState() != null) {
-                effectiveConfig.set(
-                        SavepointConfigOptions.SAVEPOINT_IGNORE_UNCLAIMED_STATE,
-                        jobSpec.getAllowNonRestoredState());
-            }
+            // We need to keep the application clusters around for proper operator behaviour
+            effectiveConfig.set(SHUTDOWN_ON_APPLICATION_FINISH, false);
+            setDefaultConf(SUBMIT_FAILED_JOB_ON_APPLICATION_ERROR, true);
 
-            if (jobSpec.getEntryClass() != null) {
-                effectiveConfig.set(
-                        ApplicationConfiguration.APPLICATION_MAIN_CLASS, jobSpec.getEntryClass());
-            }
-
-            if (jobSpec.getArgs() != null) {
-                effectiveConfig.set(
-                        ApplicationConfiguration.APPLICATION_ARGS,
-                        Arrays.asList(jobSpec.getArgs()));
-            }
+            // Generic shared job config logic
+            applyJobConfig(clusterId, effectiveConfig, jobSpec);
         } else {
             effectiveConfig.set(
                     DeploymentOptions.TARGET, KubernetesDeploymentTarget.SESSION.getName());
@@ -415,7 +402,6 @@ public class FlinkConfigBuilder {
                 .applyImagePullPolicy()
                 .applyServiceAccount()
                 .applyPodTemplate()
-                .applyIngressDomain()
                 .applyJobManagerSpec()
                 .applyTaskManagerSpec()
                 .applyJobOrSessionSpec()
@@ -423,8 +409,12 @@ public class FlinkConfigBuilder {
     }
 
     private <T> void setDefaultConf(ConfigOption<T> option, T value) {
-        if (!effectiveConfig.contains(option)) {
-            effectiveConfig.set(option, value);
+        setDefaultConf(effectiveConfig, option, value);
+    }
+
+    private static <T> void setDefaultConf(Configuration conf, ConfigOption<T> option, T value) {
+        if (!conf.contains(option)) {
+            conf.set(option, value);
         }
     }
 
@@ -469,21 +459,23 @@ public class FlinkConfigBuilder {
         }
 
         boolean newConfKeys = spec.getFlinkVersion().isEqualOrNewer(FlinkVersion.v1_17);
-        String configKey;
+        String configKey = null;
         if (isJM) {
-            if (newConfKeys) {
-                configKey = KubernetesConfigOptions.JOB_MANAGER_CPU.key();
-            } else {
+            // Set new config all the time to simplify reading side
+            conf.setDouble(KubernetesConfigOptions.JOB_MANAGER_CPU.key(), resource.getCpu());
+            if (!newConfKeys) {
                 configKey = "kubernetes.jobmanager.cpu";
             }
         } else {
-            if (newConfKeys) {
-                configKey = KubernetesConfigOptions.TASK_MANAGER_CPU.key();
-            } else {
+            // Set new config all the time to simplify reading side
+            conf.setDouble(KubernetesConfigOptions.TASK_MANAGER_CPU.key(), resource.getCpu());
+            if (!newConfKeys) {
                 configKey = "kubernetes.taskmanager.cpu";
             }
         }
-        conf.setDouble(configKey, resource.getCpu());
+        if (configKey != null) {
+            conf.setDouble(configKey, resource.getCpu());
+        }
     }
 
     @VisibleForTesting
@@ -564,14 +556,12 @@ public class FlinkConfigBuilder {
             File logbackConfFile = new File(tmpDir.getAbsolutePath(), CONFIG_FILE_LOGBACK_NAME);
             Files.write(logbackConfFile.toPath(), logbackConf.getBytes());
         }
-        tmpDir.deleteOnExit();
         return tmpDir.getAbsolutePath();
     }
 
     private static String createTempFile(PodTemplateSpec podTemplate) throws IOException {
         final File tmp = File.createTempFile(GENERATED_FILE_PREFIX + "podTemplate_", ".yaml");
         Files.write(tmp.toPath(), Serialization.asYaml(podTemplate).getBytes());
-        tmp.deleteOnExit();
         return tmp.getAbsolutePath();
     }
 

@@ -21,10 +21,13 @@ import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.client.JobStatusMessage;
+import org.apache.flink.runtime.execution.ExecutionState;
 import org.apache.flink.runtime.highavailability.nonha.standalone.StandaloneClientHAServices;
+import org.apache.flink.runtime.messages.webmonitor.JobDetails;
+import org.apache.flink.runtime.messages.webmonitor.MultipleJobsDetails;
 import org.apache.flink.runtime.rest.messages.ConfigurationInfo;
 import org.apache.flink.runtime.rest.messages.JobMessageParameters;
+import org.apache.flink.runtime.rest.messages.JobsOverviewHeaders;
 import org.apache.flink.runtime.rest.messages.MessageHeaders;
 import org.apache.flink.runtime.rest.messages.MessageParameters;
 import org.apache.flink.runtime.rest.messages.RequestBody;
@@ -38,13 +41,12 @@ import org.junit.jupiter.api.Test;
 import javax.annotation.Nullable;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -56,12 +58,9 @@ class FlinkClusterJobListFetcherTest {
     /** Test whether the job list and confs are expected. */
     @Test
     void testFetchJobListAndConfigurationInfo() throws Exception {
-        var job1 =
-                new JobStatusMessage(
-                        new JobID(), "", JobStatus.RUNNING, Instant.now().toEpochMilli());
-        var job2 =
-                new JobStatusMessage(
-                        new JobID(), "", JobStatus.CANCELLING, Instant.now().toEpochMilli());
+        var job1 = new JobID();
+        var job2 = new JobID();
+        var jobs = Map.of(job1, JobStatus.RUNNING, job2, JobStatus.CANCELLING);
 
         Configuration expectedConf1 = new Configuration();
         expectedConf1.setString("option_key1", "option_value1");
@@ -70,35 +69,57 @@ class FlinkClusterJobListFetcherTest {
         expectedConf2.setString("option_key2", "option_value2");
         expectedConf2.setString("option_key3", "option_value3");
 
-        var jobs = Map.of(job1.getJobId(), job1, job2.getJobId(), job2);
-        var configurations = Map.of(job1.getJobId(), expectedConf1, job2.getJobId(), expectedConf2);
+        var configurations = Map.of(job1, expectedConf1, job2, expectedConf2);
         var closeCounter = new AtomicLong();
         FlinkClusterJobListFetcher jobListFetcher =
                 new FlinkClusterJobListFetcher(
                         getRestClusterClient(
-                                Either.Left(List.of(job1, job2)),
+                                Either.Left(jobs),
                                 Either.Left(
                                         Map.of(
-                                                job1.getJobId(),
+                                                job1,
                                                 ConfigurationInfo.from(expectedConf1),
-                                                job2.getJobId(),
+                                                job2,
                                                 ConfigurationInfo.from(expectedConf2))),
                                 closeCounter),
                         Duration.ofSeconds(10));
 
+        // Test for empty base conf
+        assertFetcherResult(
+                new Configuration(), jobs, configurations, closeCounter, jobListFetcher);
+
+        // Add the new option key, and old option key with different value.
+        var baseConf = new Configuration();
+        baseConf.setString("option_key4", "option_value4");
+        baseConf.setString("option_key3", "option_value5");
+
+        closeCounter.set(0);
+        // Test for mixed base conf
+        assertFetcherResult(
+                new Configuration(), jobs, configurations, closeCounter, jobListFetcher);
+    }
+
+    private void assertFetcherResult(
+            Configuration baseConf,
+            Map<JobID, JobStatus> jobs,
+            Map<JobID, Configuration> configurations,
+            AtomicLong closeCounter,
+            FlinkClusterJobListFetcher jobListFetcher)
+            throws Exception {
         // Fetch multiple times and check whether the results are as expected each time
         for (int i = 1; i <= 3; i++) {
-            var fetchedJobList = jobListFetcher.fetch();
+            var fetchedJobList = jobListFetcher.fetch(baseConf);
             // Check whether rest client is closed.
             assertThat(closeCounter).hasValue(i);
 
             assertThat(fetchedJobList).hasSize(2);
             for (var jobContext : fetchedJobList) {
-                JobStatusMessage expectedJobStatusMessage = jobs.get(jobContext.getJobID());
-                Configuration expectedConf = configurations.get(jobContext.getJobID());
-                assertThat(expectedJobStatusMessage).isNotNull();
-                assertThat(jobContext.getJobStatus())
-                        .isEqualTo(expectedJobStatusMessage.getJobState());
+                var expectedJobStatus = jobs.get(jobContext.getJobID());
+
+                var expectedConf = new Configuration(baseConf);
+                expectedConf.addAll(configurations.get(jobContext.getJobID()));
+                assertThat(jobContext.getJobStatus()).isNotNull().isEqualTo(expectedJobStatus);
+
                 assertThat(jobContext.getConfiguration()).isNotNull().isEqualTo(expectedConf);
             }
         }
@@ -120,7 +141,9 @@ class FlinkClusterJobListFetcherTest {
                                 Either.Left(Map.of()),
                                 closeCounter),
                         Duration.ofSeconds(10));
-        assertThatThrownBy(jobListFetcher::fetch).getCause().isEqualTo(expectedException);
+        assertThatThrownBy(() -> jobListFetcher.fetch(new Configuration()))
+                .getCause()
+                .isEqualTo(expectedException);
         assertThat(closeCounter).hasValue(1);
     }
 
@@ -130,21 +153,20 @@ class FlinkClusterJobListFetcherTest {
      */
     @Test
     void testFetchConfigurationException() {
-        var job1 =
-                new JobStatusMessage(
-                        new JobID(), "", JobStatus.RUNNING, Instant.now().toEpochMilli());
         var expectedException = new RuntimeException("Expected exception.");
         var closeCounter = new AtomicLong();
 
         FlinkClusterJobListFetcher jobListFetcher =
                 new FlinkClusterJobListFetcher(
                         getRestClusterClient(
-                                Either.Left(List.of(job1)),
+                                Either.Left(Map.of(new JobID(), JobStatus.RUNNING)),
                                 Either.Right(expectedException),
                                 closeCounter),
                         Duration.ofSeconds(10));
 
-        assertThatThrownBy(jobListFetcher::fetch).getRootCause().isEqualTo(expectedException);
+        assertThatThrownBy(() -> jobListFetcher.fetch(new Configuration()))
+                .getRootCause()
+                .isEqualTo(expectedException);
         assertThat(closeCounter).hasValue(1);
     }
 
@@ -161,7 +183,8 @@ class FlinkClusterJobListFetcherTest {
                         Duration.ofSeconds(2));
 
         assertThat(closeFuture).isNotDone();
-        assertThatThrownBy(jobListFetcher::fetch).isInstanceOf(TimeoutException.class);
+        assertThatThrownBy(() -> jobListFetcher.fetch(new Configuration()))
+                .isInstanceOf(TimeoutException.class);
         assertThat(closeFuture).isDone();
     }
 
@@ -171,26 +194,24 @@ class FlinkClusterJobListFetcherTest {
      */
     @Test
     void testFetchConfigurationTimeout() {
-        var job1 =
-                new JobStatusMessage(
-                        new JobID(), "", JobStatus.RUNNING, Instant.now().toEpochMilli());
         CompletableFuture<Void> closeFuture = new CompletableFuture<>();
 
         FlinkClusterJobListFetcher jobListFetcher =
                 new FlinkClusterJobListFetcher(
-                        getTimeoutableRestClusterClient(List.of(job1), null, closeFuture),
+                        getTimeoutableRestClusterClient(
+                                Map.of(new JobID(), JobStatus.RUNNING), null, closeFuture),
                         Duration.ofSeconds(2));
 
         assertThat(closeFuture).isNotDone();
-        assertThatThrownBy(jobListFetcher::fetch)
+        assertThatThrownBy(() -> jobListFetcher.fetch(new Configuration()))
                 .getRootCause()
                 .isInstanceOf(TimeoutException.class);
         assertThat(closeFuture).isDone();
     }
 
     /**
-     * @param jobListOrException When listJobs is called, return jobList if Either is left, return
-     *     failedFuture if Either is right.
+     * @param jobsOrException When the jobs overview is called, return jobList if Either is left,
+     *     return failedFuture if Either is right.
      * @param configurationsOrException When fetch job conf, return configuration if Either is left,
      *     return failedFuture if Either is right.
      * @param closeCounter Increment the count each time the {@link RestClusterClient#close} is
@@ -198,7 +219,7 @@ class FlinkClusterJobListFetcherTest {
      */
     private static FunctionWithException<Configuration, RestClusterClient<String>, Exception>
             getRestClusterClient(
-                    Either<Collection<JobStatusMessage>, Throwable> jobListOrException,
+                    Either<Map<JobID, JobStatus>, Throwable> jobsOrException,
                     Either<Map<JobID, ConfigurationInfo>, Throwable> configurationsOrException,
                     AtomicLong closeCounter) {
         return conf ->
@@ -206,14 +227,6 @@ class FlinkClusterJobListFetcherTest {
                         conf,
                         "test-cluster",
                         (c, e) -> new StandaloneClientHAServices("localhost")) {
-
-                    @Override
-                    public CompletableFuture<Collection<JobStatusMessage>> listJobs() {
-                        if (jobListOrException.isLeft()) {
-                            return CompletableFuture.completedFuture(jobListOrException.left());
-                        }
-                        return CompletableFuture.failedFuture(jobListOrException.right());
-                    }
 
                     @Override
                     public <
@@ -231,6 +244,22 @@ class FlinkClusterJobListFetcherTest {
                             return (CompletableFuture<P>)
                                     CompletableFuture.completedFuture(
                                             configurationsOrException.left().get(jobID));
+                        } else if (h instanceof JobsOverviewHeaders) {
+                            if (jobsOrException.isLeft()) {
+                                return (CompletableFuture<P>)
+                                        CompletableFuture.completedFuture(
+                                                new MultipleJobsDetails(
+                                                        jobsOrException.left().entrySet().stream()
+                                                                .map(
+                                                                        entry ->
+                                                                                generateJobDetails(
+                                                                                        entry
+                                                                                                .getKey(),
+                                                                                        entry
+                                                                                                .getValue()))
+                                                                .collect(Collectors.toList())));
+                            }
+                            return CompletableFuture.failedFuture(jobsOrException.right());
                         }
                         fail("Unknown request");
                         return null;
@@ -245,7 +274,7 @@ class FlinkClusterJobListFetcherTest {
     }
 
     /**
-     * @param jobList When listJobs is called, return jobList if it's not null, don't complete
+     * @param jobs When the jobs overview is called, return jobList if it's not null, don't complete
      *     future if it's null.
      * @param configuration When fetch job conf, return configuration if it's not null, don't
      *     complete future if it's null.
@@ -253,7 +282,7 @@ class FlinkClusterJobListFetcherTest {
      */
     private static FunctionWithException<Configuration, RestClusterClient<String>, Exception>
             getTimeoutableRestClusterClient(
-                    @Nullable Collection<JobStatusMessage> jobList,
+                    @Nullable Map<JobID, JobStatus> jobs,
                     @Nullable ConfigurationInfo configuration,
                     CompletableFuture<Void> closeFuture) {
         return conf ->
@@ -261,14 +290,6 @@ class FlinkClusterJobListFetcherTest {
                         conf,
                         "test-cluster",
                         (c, e) -> new StandaloneClientHAServices("localhost")) {
-
-                    @Override
-                    public CompletableFuture<Collection<JobStatusMessage>> listJobs() {
-                        if (jobList == null) {
-                            return new CompletableFuture<>();
-                        }
-                        return CompletableFuture.completedFuture(jobList);
-                    }
 
                     @Override
                     public <
@@ -283,6 +304,21 @@ class FlinkClusterJobListFetcherTest {
                             }
                             return (CompletableFuture<P>)
                                     CompletableFuture.completedFuture(configuration);
+                        } else if (h instanceof JobsOverviewHeaders) {
+                            if (jobs == null) {
+                                return new CompletableFuture<>();
+                            }
+                            return (CompletableFuture<P>)
+                                    CompletableFuture.completedFuture(
+                                            new MultipleJobsDetails(
+                                                    jobs.entrySet().stream()
+                                                            .map(
+                                                                    entry ->
+                                                                            generateJobDetails(
+                                                                                    entry.getKey(),
+                                                                                    entry
+                                                                                            .getValue()))
+                                                            .collect(Collectors.toList())));
                         }
                         fail("Unknown request");
                         return null;
@@ -294,5 +330,26 @@ class FlinkClusterJobListFetcherTest {
                         closeFuture.complete(null);
                     }
                 };
+    }
+
+    private static JobDetails generateJobDetails(JobID jobID, JobStatus jobStatus) {
+        int[] countPerState = new int[ExecutionState.values().length];
+        if (jobStatus == JobStatus.RUNNING) {
+            countPerState[ExecutionState.RUNNING.ordinal()] = 5;
+            countPerState[ExecutionState.FINISHED.ordinal()] = 2;
+        } else if (jobStatus == JobStatus.CANCELLING) {
+            countPerState[ExecutionState.CANCELING.ordinal()] = 7;
+        }
+        int numTasks = Arrays.stream(countPerState).sum();
+        return new JobDetails(
+                jobID,
+                "test-job",
+                System.currentTimeMillis(),
+                -1,
+                0,
+                jobStatus,
+                System.currentTimeMillis(),
+                countPerState,
+                numTasks);
     }
 }

@@ -17,9 +17,11 @@
 
 package org.apache.flink.autoscaler.config;
 
+import org.apache.flink.autoscaler.JobVertexScaler;
 import org.apache.flink.autoscaler.metrics.MetricAggregator;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
+import org.apache.flink.configuration.MemorySize;
 
 import java.time.Duration;
 import java.util.List;
@@ -101,13 +103,20 @@ public class AutoScalerOptions {
                     .withFallbackKeys(oldOperatorConfigKey("target.utilization.boundary"))
                     .withDescription(
                             "Target vertex utilization boundary. Scaling won't be performed if the processing capacity is within [target_rate / (target_utilization - boundary), (target_rate / (target_utilization + boundary)]");
-    public static final ConfigOption<Duration> SCALE_UP_GRACE_PERIOD =
-            autoScalerConfig("scale-up.grace-period")
+
+    public static final ConfigOption<Duration> SCALE_DOWN_INTERVAL =
+            autoScalerConfig("scale-down.interval")
                     .durationType()
                     .defaultValue(Duration.ofHours(1))
-                    .withFallbackKeys(oldOperatorConfigKey("scale-up.grace-period"))
+                    .withDeprecatedKeys(autoScalerConfigKey("scale-up.grace-period"))
+                    .withFallbackKeys(
+                            oldOperatorConfigKey("scale-up.grace-period"),
+                            oldOperatorConfigKey("scale-down.interval"))
                     .withDescription(
-                            "Duration in which no scale down of a vertex is allowed after it has been scaled up.");
+                            "The delay time for scale down to be executed. If it is greater than 0, the scale down will be delayed. "
+                                    + "Delayed rescale can merge multiple scale downs within `scale-down.interval` into a scale down, thereby reducing the number of rescales. "
+                                    + "Reducing the frequency of job restarts can improve job availability. "
+                                    + "Scale down can be executed directly if it's less than or equal 0.");
 
     public static final ConfigOption<Integer> VERTEX_MIN_PARALLELISM =
             autoScalerConfig("vertex.min-parallelism")
@@ -327,4 +336,32 @@ public class AutoScalerOptions {
                     .defaultValue(Duration.ofSeconds(10))
                     .withFallbackKeys(oldOperatorConfigKey("flink.rest-client.timeout"))
                     .withDescription("The timeout for waiting the flink rest client to return.");
+
+    public static final ConfigOption<MemorySize> MEMORY_QUOTA =
+            autoScalerConfig("quota.memory")
+                    .memoryType()
+                    .noDefaultValue()
+                    .withFallbackKeys(oldOperatorConfigKey("quota.memory"))
+                    .withDescription(
+                            "Quota of the memory size. When scaling would go beyond this number the the scaling is not going to happen.");
+
+    public static final ConfigOption<Double> CPU_QUOTA =
+            autoScalerConfig("quota.cpu")
+                    .doubleType()
+                    .noDefaultValue()
+                    .withFallbackKeys(oldOperatorConfigKey("quota.cpu"))
+                    .withDescription(
+                            "Quota of the CPU count. When scaling would go beyond this number the the scaling is not going to happen.");
+
+    public static final ConfigOption<JobVertexScaler.KeyGroupOrPartitionsAdjustMode>
+            SCALING_KEY_GROUP_PARTITIONS_ADJUST_MODE =
+                    autoScalerConfig("scaling.key-group.partitions.adjust.mode")
+                            .enumType(JobVertexScaler.KeyGroupOrPartitionsAdjustMode.class)
+                            .defaultValue(
+                                    JobVertexScaler.KeyGroupOrPartitionsAdjustMode.EVENLY_SPREAD)
+                            .withFallbackKeys(
+                                    oldOperatorConfigKey(
+                                            "scaling.key-group.partitions.adjust.mode"))
+                            .withDescription(
+                                    "How to adjust the parallelism of Source vertex or upstream shuffle is keyBy");
 }

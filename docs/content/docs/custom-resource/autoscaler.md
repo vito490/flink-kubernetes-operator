@@ -275,6 +275,13 @@ org.apache.flink.autoscaler.standalone.StandaloneAutoscalerEntrypoint \
 Updating the `autoscaler.standalone.fetcher.flink-cluster.host` and `autoscaler.standalone.fetcher.flink-cluster.port`
 based on your flink cluster. In general, the host and port are the same as Flink WebUI.
 
+All autoscaler related options can be set at autoscaler standalone level, and the configuration at job-level can 
+override the default value provided in the autoscaler standalone, such as:
+
+- job.autoscaler.enabled
+- job.autoscaler.metrics.window
+- etc
+
 ### Using the JDBC Autoscaler State Store & Event Handler
 
 A driver dependency is required to connect to a specified database. Here are drivers currently supported,
@@ -300,6 +307,12 @@ org.apache.flink.autoscaler.standalone.StandaloneAutoscalerEntrypoint \
 --autoscaler.standalone.jdbc.url jdbc:mysql://localhost:3306/flink_autoscaler \
 --autoscaler.standalone.jdbc.username root
 ```
+
+### Load StandaloneAutoscaler configuration through configuration file
+
+Can specify the running configuration of StandaloneAutoscaler in the configuration file. The config.yaml and
+flink-conf.yaml files in the environment variable `FLINK_CONF_DIR` directory will be loaded by default.
+NOTE: main parameters will overwrite the configuration in the configuration file
 
 All supported options for autoscaler standalone can be viewed
 [here]({{< ref "docs/operations/configuration#autoscaler-standalone-configuration" >}}).

@@ -32,11 +32,12 @@ import org.apache.flink.kubernetes.operator.api.status.JobManagerDeploymentStatu
 import org.apache.flink.kubernetes.operator.autoscaler.KubernetesJobAutoScalerContext;
 import org.apache.flink.kubernetes.operator.config.KubernetesOperatorConfigOptions;
 import org.apache.flink.kubernetes.operator.controller.FlinkResourceContext;
-import org.apache.flink.kubernetes.operator.exception.RecoveryFailureException;
+import org.apache.flink.kubernetes.operator.exception.UpgradeFailureException;
 import org.apache.flink.kubernetes.operator.health.ClusterHealthInfo;
 import org.apache.flink.kubernetes.operator.observer.ClusterHealthEvaluator;
 import org.apache.flink.kubernetes.operator.reconciler.ReconciliationUtils;
 import org.apache.flink.kubernetes.operator.service.FlinkService;
+import org.apache.flink.kubernetes.operator.service.SuspendMode;
 import org.apache.flink.kubernetes.operator.utils.EventRecorder;
 import org.apache.flink.kubernetes.operator.utils.FlinkUtils;
 import org.apache.flink.kubernetes.operator.utils.IngressUtils;
@@ -75,36 +76,25 @@ public class ApplicationReconciler
     }
 
     @Override
-    protected AvailableUpgradeMode getAvailableUpgradeMode(
+    protected JobUpgrade getJobUpgrade(
             FlinkResourceContext<FlinkDeployment> ctx, Configuration deployConfig)
             throws Exception {
 
         var deployment = ctx.getResource();
         var status = deployment.getStatus();
-        var availableUpgradeMode = super.getAvailableUpgradeMode(ctx, deployConfig);
+        var availableUpgradeMode = super.getJobUpgrade(ctx, deployConfig);
 
         if (availableUpgradeMode.isAvailable() || !availableUpgradeMode.isAllowFallback()) {
             return availableUpgradeMode;
         }
         var flinkService = ctx.getFlinkService();
 
-        boolean lastStateAllowed =
-                deployment.getSpec().getJob().getUpgradeMode() == UpgradeMode.LAST_STATE
-                        || deployConfig.getBoolean(
-                                KubernetesOperatorConfigOptions
-                                        .OPERATOR_JOB_UPGRADE_LAST_STATE_FALLBACK_ENABLED);
-
-        if (lastStateAllowed
-                && HighAvailabilityMode.isHighAvailabilityModeActivated(deployConfig)
+        if (HighAvailabilityMode.isHighAvailabilityModeActivated(deployConfig)
                 && HighAvailabilityMode.isHighAvailabilityModeActivated(ctx.getObserveConfig())
-                && !flinkVersionChanged(
-                        ReconciliationUtils.getDeployedSpec(deployment), deployment.getSpec())) {
-
-            if (flinkService.isHaMetadataAvailable(deployConfig)) {
-                LOG.info(
-                        "Job is not running but HA metadata is available for last state restore, ready for upgrade");
-                return AvailableUpgradeMode.of(UpgradeMode.LAST_STATE);
-            }
+                && flinkService.isHaMetadataAvailable(deployConfig)) {
+            LOG.info(
+                    "Job is not running but HA metadata is available for last state restore, ready for upgrade");
+            return JobUpgrade.lastStateUsingHaMeta();
         }
 
         var jmDeployStatus = status.getJobManagerDeploymentStatus();
@@ -116,27 +106,25 @@ public class ApplicationReconciler
                         != UpgradeMode.LAST_STATE
                 && FlinkUtils.jmPodNeverStarted(ctx.getJosdkContext())) {
             deleteJmThatNeverStarted(flinkService, deployment, deployConfig);
-            return getAvailableUpgradeMode(ctx, deployConfig);
+            return getJobUpgrade(ctx, deployConfig);
         }
 
         if ((jmDeployStatus == JobManagerDeploymentStatus.MISSING
                         || jmDeployStatus == JobManagerDeploymentStatus.ERROR)
                 && !flinkService.isHaMetadataAvailable(deployConfig)) {
-            throw new RecoveryFailureException(
+            throw new UpgradeFailureException(
                     "JobManager deployment is missing and HA data is not available to make stateful upgrades. "
                             + "It is possible that the job has finished or terminally failed, or the configmaps have been deleted. "
                             + "Manual restore required.",
                     "UpgradeFailed");
         }
 
-        LOG.info(
-                "Job is not running and HA metadata is not available or usable for executing the upgrade, waiting for upgradeable state");
-        return AvailableUpgradeMode.unavailable();
+        return JobUpgrade.unavailable();
     }
 
     private void deleteJmThatNeverStarted(
             FlinkService flinkService, FlinkDeployment deployment, Configuration deployConfig) {
-        deployment.getStatus().getJobStatus().setState(JobStatus.FAILED.name());
+        deployment.getStatus().getJobStatus().setState(JobStatus.FAILED);
         flinkService.deleteClusterDeployment(
                 deployment.getMetadata(), deployment.getStatus(), deployConfig, false);
         LOG.info("Deleted application cluster that never started.");
@@ -159,8 +147,15 @@ public class ApplicationReconciler
                 relatedResource.getStatus().getClusterInfo());
 
         if (savepoint.isPresent()) {
+            // Savepoint deployment
             deployConfig.set(SavepointConfigOptions.SAVEPOINT_PATH, savepoint.get());
+        } else if (requireHaMetadata && flinkService.atLeastOneCheckpoint(deployConfig)) {
+            // Last state deployment, explicitly set a dummy savepoint path to avoid accidental
+            // incorrect state restore in case the HA metadata is deleted by the user
+            deployConfig.set(SavepointConfigOptions.SAVEPOINT_PATH, LAST_STATE_DUMMY_SP_PATH);
+            status.getJobStatus().setUpgradeSavepointPath(LAST_STATE_DUMMY_SP_PATH);
         } else {
+            // Stateless deployment, remove any user configured savepoint path
             deployConfig.removeConfig(SavepointConfigOptions.SAVEPOINT_PATH);
         }
 
@@ -175,7 +170,8 @@ public class ApplicationReconciler
             statusRecorder.patchAndCacheStatus(relatedResource, ctx.getKubernetesClient());
         }
 
-        setJobIdIfNecessary(spec, relatedResource, deployConfig, ctx.getKubernetesClient());
+        setJobIdIfNecessary(
+                relatedResource, deployConfig, ctx.getKubernetesClient(), requireHaMetadata);
 
         eventRecorder.triggerEvent(
                 relatedResource,
@@ -185,7 +181,7 @@ public class ApplicationReconciler
                 MSG_SUBMIT,
                 ctx.getKubernetesClient());
         flinkService.submitApplicationCluster(spec.getJob(), deployConfig, requireHaMetadata);
-        status.getJobStatus().setState(org.apache.flink.api.common.JobStatus.RECONCILING.name());
+        status.getJobStatus().setState(org.apache.flink.api.common.JobStatus.RECONCILING);
         status.setJobManagerDeploymentStatus(JobManagerDeploymentStatus.DEPLOYING);
 
         IngressUtils.updateIngressRules(
@@ -193,24 +189,25 @@ public class ApplicationReconciler
     }
 
     private void setJobIdIfNecessary(
-            FlinkDeploymentSpec spec,
             FlinkDeployment resource,
             Configuration deployConfig,
-            KubernetesClient client) {
+            KubernetesClient client,
+            boolean lastStateDeploy) {
         // The jobId assigned by Flink would be constant,
         // overwrite to avoid checkpoint path conflicts.
         // https://issues.apache.org/jira/browse/FLINK-19358
         // https://issues.apache.org/jira/browse/FLINK-29109
 
-        if (deployConfig.get(PipelineOptionsInternal.PIPELINE_FIXED_JOB_ID) != null) {
-            // user managed, don't touch
+        var status = resource.getStatus();
+        var userJobId = deployConfig.get(PipelineOptionsInternal.PIPELINE_FIXED_JOB_ID);
+        if (userJobId != null) {
+            status.getJobStatus().setJobId(userJobId);
+            statusRecorder.patchAndCacheStatus(resource, client);
             return;
         }
 
-        var status = resource.getStatus();
-        // generate jobId initially or rotate on every deployment when mode is stateless
-        if (status.getJobStatus().getJobId() == null
-                || spec.getJob().getUpgradeMode() == UpgradeMode.STATELESS) {
+        // Rotate job id when not last-state deployment
+        if (status.getJobStatus().getJobId() == null || !lastStateDeploy) {
             String jobId = JobID.generate().toHexString();
             // record before first deployment to ensure we use it on any retry
             status.getJobStatus().setJobId(jobId);
@@ -224,9 +221,13 @@ public class ApplicationReconciler
     }
 
     @Override
-    protected void cancelJob(FlinkResourceContext<FlinkDeployment> ctx, UpgradeMode upgradeMode)
+    protected boolean cancelJob(FlinkResourceContext<FlinkDeployment> ctx, SuspendMode suspendMode)
             throws Exception {
-        ctx.getFlinkService().cancelJob(ctx.getResource(), upgradeMode, ctx.getObserveConfig());
+        var result =
+                ctx.getFlinkService()
+                        .cancelJob(ctx.getResource(), suspendMode, ctx.getObserveConfig());
+        result.getSavepointPath().ifPresent(location -> setUpgradeSavepointPath(ctx, location));
+        return result.isPending();
     }
 
     @Override
@@ -366,16 +367,17 @@ public class ApplicationReconciler
         var deployment = ctx.getResource();
         var status = deployment.getStatus();
         var conf = ctx.getDeployConfig(ctx.getResource().getSpec());
-        if (status.getReconciliationStatus().isBeforeFirstDeployment()) {
+        if (status.getReconciliationStatus().isBeforeFirstDeployment()
+                || ReconciliationUtils.isJobInTerminalState(status)) {
             ctx.getFlinkService()
                     .deleteClusterDeployment(deployment.getMetadata(), status, conf, true);
         } else {
             var observeConfig = ctx.getObserveConfig();
-            UpgradeMode upgradeMode =
+            var suspendMode =
                     observeConfig.getBoolean(KubernetesOperatorConfigOptions.SAVEPOINT_ON_DELETION)
-                            ? UpgradeMode.SAVEPOINT
-                            : UpgradeMode.STATELESS;
-            cancelJob(ctx, upgradeMode);
+                            ? SuspendMode.SAVEPOINT
+                            : SuspendMode.STATELESS;
+            cancelJob(ctx, suspendMode);
         }
         return DeleteControl.defaultDelete();
     }

@@ -20,7 +20,7 @@ package org.apache.flink.kubernetes.operator.api.status;
 import org.apache.flink.annotation.Experimental;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.fabric8.kubernetes.model.annotation.PrinterColumn;
+import io.fabric8.crd.generator.annotation.PrinterColumn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,7 +42,7 @@ public class JobStatus {
 
     /** Last observed state of the job. */
     @PrinterColumn(name = "Job Status")
-    private String state;
+    private org.apache.flink.api.common.JobStatus state;
 
     /** Start time of the job. */
     private String startTime;
@@ -50,9 +50,11 @@ public class JobStatus {
     /** Update time of the job. */
     private String updateTime;
 
+    private String upgradeSavepointPath;
+
     /** Information about pending and last savepoint for the job. */
-    private SavepointInfo savepointInfo = new SavepointInfo();
+    @Deprecated private SavepointInfo savepointInfo = new SavepointInfo();
 
     /** Information about pending and last checkpoint for the job. */
-    private CheckpointInfo checkpointInfo = new CheckpointInfo();
+    @Deprecated private CheckpointInfo checkpointInfo = new CheckpointInfo();
 }

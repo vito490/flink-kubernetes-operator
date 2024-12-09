@@ -23,6 +23,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "flink-operator.labels" . | nindent 4 }}
+    {{- if index (.Values.operatorPod) "labels" }}
+      {{- with .Values.operatorPod.labels }}
+        {{- toYaml . | nindent 4 }}
+      {{- end }}
+    {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
   strategy:
@@ -54,6 +59,9 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if .Values.operatorPod.nodeSelector }}
       nodeSelector: {{ toYaml .Values.operatorPod.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.operatorPod.affinity }}
+      affinity: {{ toYaml .Values.operatorPod.affinity | nindent 8 }}
       {{- end }}
       {{- with .Values.operatorPod.tolerations }}
       tolerations:
@@ -199,6 +207,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            {{- with .Values.operatorPod.webhook.container.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.operatorPod.webhook.resources | nindent 12 }}
           securityContext:

@@ -25,19 +25,24 @@ import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory;
 import org.apache.flink.kubernetes.operator.TestUtils;
+import org.apache.flink.kubernetes.operator.api.AbstractFlinkResource;
 import org.apache.flink.kubernetes.operator.api.FlinkDeployment;
 import org.apache.flink.kubernetes.operator.api.FlinkSessionJob;
+import org.apache.flink.kubernetes.operator.api.FlinkStateSnapshot;
+import org.apache.flink.kubernetes.operator.api.spec.CheckpointSpec;
 import org.apache.flink.kubernetes.operator.api.spec.FlinkDeploymentSpec;
 import org.apache.flink.kubernetes.operator.api.spec.FlinkVersion;
 import org.apache.flink.kubernetes.operator.api.spec.IngressSpec;
+import org.apache.flink.kubernetes.operator.api.spec.JobKind;
+import org.apache.flink.kubernetes.operator.api.spec.JobReference;
 import org.apache.flink.kubernetes.operator.api.spec.JobSpec;
 import org.apache.flink.kubernetes.operator.api.spec.JobState;
 import org.apache.flink.kubernetes.operator.api.spec.KubernetesDeploymentMode;
+import org.apache.flink.kubernetes.operator.api.spec.SavepointSpec;
 import org.apache.flink.kubernetes.operator.api.spec.TaskManagerSpec;
 import org.apache.flink.kubernetes.operator.api.spec.UpgradeMode;
 import org.apache.flink.kubernetes.operator.api.status.FlinkDeploymentReconciliationStatus;
 import org.apache.flink.kubernetes.operator.api.status.FlinkDeploymentStatus;
-import org.apache.flink.kubernetes.operator.api.status.JobManagerDeploymentStatus;
 import org.apache.flink.kubernetes.operator.api.status.JobStatus;
 import org.apache.flink.kubernetes.operator.api.status.Savepoint;
 import org.apache.flink.kubernetes.operator.api.status.SnapshotTriggerType;
@@ -105,13 +110,6 @@ public class DefaultValidatorTest {
                     dep.getSpec().getTaskManager().setReplicas(1);
                     dep.getSpec().getJob().setParallelism(0);
                 });
-
-        testError(
-                dep -> {
-                    dep.getSpec().setFlinkConfiguration(new HashMap<>());
-                    dep.getSpec().getJob().setUpgradeMode(UpgradeMode.LAST_STATE);
-                },
-                "Job could not be upgraded with last-state while HA disabled");
 
         testError(
                 dep -> {
@@ -456,32 +454,13 @@ public class DefaultValidatorTest {
                 },
                 "Cannot switch from standalone kubernetes to native kubernetes cluster");
 
-        // Test upgrade mode change validation
-        testError(
-                dep -> {
-                    dep.getSpec().getJob().setUpgradeMode(UpgradeMode.LAST_STATE);
-                    dep.getSpec()
-                            .getFlinkConfiguration()
-                            .remove(CheckpointingOptions.SAVEPOINT_DIRECTORY.key());
-                    dep.setStatus(new FlinkDeploymentStatus());
-                    dep.getStatus().setJobStatus(new JobStatus());
-
-                    dep.getStatus()
-                            .setReconciliationStatus(new FlinkDeploymentReconciliationStatus());
-                    FlinkDeploymentSpec spec = ReconciliationUtils.clone(dep.getSpec());
-                    spec.getJob().setUpgradeMode(UpgradeMode.STATELESS);
-                    spec.getFlinkConfiguration().remove(HighAvailabilityOptions.HA_MODE.key());
-
-                    dep.getStatus()
-                            .getReconciliationStatus()
-                            .serializeAndSetLastReconciledSpec(spec, dep);
-                    dep.getStatus().setJobManagerDeploymentStatus(JobManagerDeploymentStatus.READY);
-                },
-                String.format(
-                        "Job could not be upgraded to last-state while config key[%s] is not set",
-                        CheckpointingOptions.SAVEPOINT_DIRECTORY.key()));
-
         testError(dep -> dep.getSpec().setFlinkVersion(null), "Flink Version must be defined.");
+
+        testError(
+                dep -> dep.getSpec().setFlinkVersion(FlinkVersion.v1_14),
+                "Flink version "
+                        + FlinkVersion.v1_14
+                        + " is not supported by this operator version");
 
         testSuccess(dep -> dep.getSpec().setFlinkVersion(FlinkVersion.v1_15));
 
@@ -604,7 +583,7 @@ public class DefaultValidatorTest {
                     job.setSavepointRedeployNonce(1L);
                     job.setInitialSavepointPath(" ");
                 },
-                "InitialSavepointPath must not be empty for savepoint redeployment");
+                "InitialSavepointPath must not be empty for savepoint redeploymen");
 
         testError(
                 dep -> {
@@ -618,7 +597,7 @@ public class DefaultValidatorTest {
                     job.setSavepointRedeployNonce(2L);
                     job.setInitialSavepointPath(null);
                 },
-                "InitialSavepointPath must not be empty for savepoint redeployment");
+                "InitialSavepointPath must not be empty for savepoint redeploymen");
     }
 
     @ParameterizedTest
@@ -651,7 +630,7 @@ public class DefaultValidatorTest {
             UpgradeMode fromUpgrade, UpgradeMode toUpgrade, JobState fromState) {
         return dep -> {
             var spec = dep.getSpec();
-            spec.setFlinkVersion(FlinkVersion.v1_15);
+            spec.setFlinkVersion(FlinkVersion.v1_20);
             spec.getJob().setUpgradeMode(toUpgrade);
 
             var suspendSpec = ReconciliationUtils.clone(spec);
@@ -659,7 +638,7 @@ public class DefaultValidatorTest {
             // Stopped with LAST_STATE mode with different Flink Version
             suspendSpec.getJob().setUpgradeMode(fromUpgrade);
             suspendSpec.getJob().setState(fromState);
-            suspendSpec.setFlinkVersion(FlinkVersion.v1_14);
+            suspendSpec.setFlinkVersion(FlinkVersion.v1_18);
 
             dep.getStatus()
                     .getReconciliationStatus()
@@ -707,7 +686,7 @@ public class DefaultValidatorTest {
         testSessionJobValidateWithModifier(
                 sessionJob -> sessionJob.getSpec().getJob().setUpgradeMode(UpgradeMode.LAST_STATE),
                 flinkDeployment -> {},
-                "The LAST_STATE upgrade mode is not supported in session job now.");
+                null);
 
         testSessionJobValidateWithModifier(
                 sessionJob ->
@@ -1022,6 +1001,70 @@ public class DefaultValidatorTest {
     private static void assertErrorNotContains(Optional<String> result) {
         if (result.isPresent()) {
             Assertions.fail("Invalid Configuration not caught in the tests");
+        }
+    }
+
+    @Test
+    public void testFlinkStateSnapshotValidator() {
+        testStateSnapshotValidateWithModifier(snapshot -> {}, null);
+
+        testStateSnapshotValidateWithModifier(
+                snapshot -> {
+                    snapshot.getSpec().setCheckpoint(CheckpointSpec.builder().build());
+                    snapshot.getSpec().setSavepoint(SavepointSpec.builder().build());
+                },
+                "Exactly one of checkpoint or savepoint configurations has to be set.");
+
+        testStateSnapshotValidateWithModifier(
+                snapshot -> snapshot.getSpec().setJobReference(null),
+                "Job reference must be supplied for this snapshot");
+
+        testStateSnapshotValidateWithModifier(
+                snapshot -> {
+                    snapshot.getSpec().setJobReference(null);
+                    snapshot.getSpec().getSavepoint().setAlreadyExists(true);
+                },
+                null);
+
+        var refName = "does-not-exist";
+        var snapshot =
+                TestUtils.buildFlinkStateSnapshotSavepoint(
+                        false,
+                        JobReference.builder()
+                                .kind(JobKind.FLINK_DEPLOYMENT)
+                                .name(refName)
+                                .build());
+        testStateSnapshotValidate(
+                snapshot,
+                Optional.empty(),
+                String.format("Target for snapshot test/%s was not found", refName));
+    }
+
+    private void testStateSnapshotValidateWithModifier(
+            Consumer<FlinkStateSnapshot> snapshotModifier, @Nullable String expectedErr) {
+        var flinkDeployment = TestUtils.buildApplicationCluster();
+        var snapshot =
+                TestUtils.buildFlinkStateSnapshotSavepoint(
+                        false, JobReference.fromFlinkResource(flinkDeployment));
+
+        snapshotModifier.accept(snapshot);
+        testStateSnapshotValidate(snapshot, Optional.of(flinkDeployment), expectedErr);
+    }
+
+    private void testStateSnapshotValidate(
+            FlinkStateSnapshot flinkStateSnapshot,
+            Optional<AbstractFlinkResource<?, ?>> secondaryResource,
+            @Nullable String expectedErr) {
+        Optional<String> error =
+                validator.validateStateSnapshot(flinkStateSnapshot, secondaryResource);
+        if (expectedErr == null) {
+            error.ifPresent(Assertions::fail);
+        } else {
+            if (error.isPresent()) {
+                assertTrue(error.get().startsWith(expectedErr), error.get());
+            } else {
+                fail("Did not get expected error: " + expectedErr);
+            }
         }
     }
 }

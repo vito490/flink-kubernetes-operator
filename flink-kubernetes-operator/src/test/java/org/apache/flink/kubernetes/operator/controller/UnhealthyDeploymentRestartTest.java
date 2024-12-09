@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 
+import static org.apache.flink.api.common.JobStatus.RUNNING;
 import static org.apache.flink.kubernetes.operator.config.KubernetesOperatorConfigOptions.OPERATOR_CLUSTER_HEALTH_CHECK_CHECKPOINT_PROGRESS_ENABLED;
 import static org.apache.flink.kubernetes.operator.config.KubernetesOperatorConfigOptions.OPERATOR_CLUSTER_HEALTH_CHECK_CHECKPOINT_PROGRESS_WINDOW;
 import static org.apache.flink.kubernetes.operator.config.KubernetesOperatorConfigOptions.OPERATOR_CLUSTER_HEALTH_CHECK_ENABLED;
@@ -95,7 +96,7 @@ public class UnhealthyDeploymentRestartTest {
         assertEquals(
                 JobManagerDeploymentStatus.READY,
                 appCluster.getStatus().getJobManagerDeploymentStatus());
-        assertEquals("RUNNING", appCluster.getStatus().getJobStatus().getState());
+        assertEquals(RUNNING, appCluster.getStatus().getJobStatus().getState());
 
         // Make deployment unhealthy
         flinkService.setMetricValue(NUM_RESTARTS_METRIC_NAME, "100");
@@ -111,7 +112,7 @@ public class UnhealthyDeploymentRestartTest {
         assertEquals(
                 JobManagerDeploymentStatus.READY,
                 appCluster.getStatus().getJobManagerDeploymentStatus());
-        assertEquals("RUNNING", appCluster.getStatus().getJobStatus().getState());
+        assertEquals(RUNNING, appCluster.getStatus().getJobStatus().getState());
     }
 
     @ParameterizedTest
@@ -129,7 +130,7 @@ public class UnhealthyDeploymentRestartTest {
         assertEquals(
                 JobManagerDeploymentStatus.READY,
                 appCluster.getStatus().getJobManagerDeploymentStatus());
-        assertEquals("RUNNING", appCluster.getStatus().getJobStatus().getState());
+        assertEquals(RUNNING, appCluster.getStatus().getJobStatus().getState());
 
         // Make deployment unhealthy
         flinkService.setMetricValue(NUMBER_OF_COMPLETED_CHECKPOINTS_METRIC_NAME, "1");
@@ -138,7 +139,7 @@ public class UnhealthyDeploymentRestartTest {
         // Ensure the last savepoint has been taken more than 10 minutes ago (Default checkpoint
         // interval)
         clusterHealthInfo.setNumCompletedCheckpointsIncreasedTimeStamp(
-                clusterHealthInfo.getNumCompletedCheckpointsIncreasedTimeStamp() - 600000);
+                clusterHealthInfo.getNumCompletedCheckpointsIncreasedTimeStamp() - 1200000);
         setLastValidClusterHealthInfo(appCluster.getStatus().getClusterInfo(), clusterHealthInfo);
         testController.getStatusRecorder().patchAndCacheStatus(appCluster, kubernetesClient);
         testController.reconcile(appCluster, context);
@@ -153,6 +154,6 @@ public class UnhealthyDeploymentRestartTest {
         assertEquals(
                 JobManagerDeploymentStatus.READY,
                 appCluster.getStatus().getJobManagerDeploymentStatus());
-        assertEquals("RUNNING", appCluster.getStatus().getJobStatus().getState());
+        assertEquals(RUNNING, appCluster.getStatus().getJobStatus().getState());
     }
 }

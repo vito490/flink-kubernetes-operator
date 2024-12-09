@@ -15,19 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.flink.kubernetes.operator.exception;
+package org.apache.flink.runtime.rest.messages.json;
 
-/** Exception to signal unrecognized job found. */
-public class UnknownJobException extends RuntimeException {
-    public UnknownJobException(Throwable cause) {
-        super(cause);
+import org.apache.flink.runtime.instance.SlotSharingGroupId;
+import org.apache.flink.util.StringUtils;
+
+/** Copied from Flink. Should be removed once the client dependency is upgraded to 1.18. */
+public class SlotSharingGroupIdConverter {
+    public static SlotSharingGroupId fromHexString(String hexString) {
+        var bytes = StringUtils.hexStringToByte(hexString);
+        var lowerPart = byteArrayToLong(bytes, 0);
+        var upperPart = byteArrayToLong(bytes, 8);
+
+        return new SlotSharingGroupId(lowerPart, upperPart);
     }
 
-    public UnknownJobException(String msg) {
-        super(msg);
-    }
+    private static long byteArrayToLong(byte[] ba, int offset) {
+        long l = 0L;
 
-    public UnknownJobException(String msg, Throwable cause) {
-        super(msg, cause);
+        for (int i = 0; i < 8; ++i) {
+            l |= ((long) ba[offset + 8 - 1 - i] & 255L) << (i << 3);
+        }
+
+        return l;
     }
 }

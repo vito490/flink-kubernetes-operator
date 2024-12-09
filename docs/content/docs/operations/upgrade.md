@@ -51,16 +51,18 @@ backwards-compatible with the previous minor version of the operator.
 
 ### 2. Upgrading the CRD
 
-The first step of the upgrade process is upgrading the CRDs for `FlinkDeployment` and `FlinkSessionJob` resources.
+The first step of the upgrade process is upgrading the CRDs for `FlinkDeployment`, `FlinkSessionJob` and `FlinkStateSnapshot` resources.
 This step must be completed manually and is not part of the helm installation logic.
 
 ```sh
 kubectl replace -f helm/flink-kubernetes-operator/crds/flinkdeployments.flink.apache.org-v1.yml
 kubectl replace -f helm/flink-kubernetes-operator/crds/flinksessionjobs.flink.apache.org-v1.yml
+kubectl replace -f helm/flink-kubernetes-operator/crds/flinkstatesnapshots.flink.apache.org-v1.yml
 ```
 
 {{< hint danger >}}
 Please note that we are using the `replace` command here which ensures that running deployments are unaffected.
+If the CRD does not exist yet, you will get an error and you should try `kubectl apply` instead.
 {{< /hint >}}
 
 ### 3. Upgrading the Helm deployment
@@ -164,7 +166,7 @@ Here is a reference example of upgrading a `basic-checkpoint-ha-example` deploym
     ```
    Finally, verify that `deploy/basic-checkpoint-ha-example` log has:
     ```
-    Starting job 00000000000000000000000000000000 from savepoint /flink-data/savepoints/savepoint-000000-2f40a9c8e4b9/_metadata
+    Starting job 00000000000000000000000000000000 from savepoint /flink-data/savepoints/savepoint-000000-aec3dd08e76d/_metadata
     ```
 
 ### 3. Changes of default values of FlinkDeployment

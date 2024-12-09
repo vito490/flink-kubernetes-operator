@@ -35,7 +35,6 @@ import org.apache.flink.kubernetes.operator.api.AbstractFlinkResource;
 import org.apache.flink.kubernetes.operator.api.FlinkDeployment;
 import org.apache.flink.kubernetes.operator.api.spec.FlinkVersion;
 import org.apache.flink.kubernetes.operator.api.spec.JobSpec;
-import org.apache.flink.kubernetes.operator.api.spec.UpgradeMode;
 import org.apache.flink.kubernetes.operator.artifact.ArtifactManager;
 import org.apache.flink.kubernetes.operator.config.FlinkOperatorConfiguration;
 import org.apache.flink.kubernetes.operator.config.KubernetesOperatorConfigOptions;
@@ -60,6 +59,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.EditReplacePatchable;
 import io.fabric8.kubernetes.client.dsl.base.PatchContext;
 import io.fabric8.kubernetes.client.dsl.base.PatchType;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +80,7 @@ public class NativeFlinkService extends AbstractFlinkService {
     private static final Logger LOG = LoggerFactory.getLogger(NativeFlinkService.class);
     private static final Deployment SCALE_TO_ZERO =
             new DeploymentBuilder().editOrNewSpec().withReplicas(0).endSpec().build();
+    private static final Duration JM_SHUTDOWN_MAX_WAIT = Duration.ofMinutes(1);
     private final EventRecorder eventRecorder;
 
     public NativeFlinkService(
@@ -115,10 +116,10 @@ public class NativeFlinkService extends AbstractFlinkService {
     }
 
     @Override
-    public void cancelJob(
-            FlinkDeployment deployment, UpgradeMode upgradeMode, Configuration configuration)
+    public CancelResult cancelJob(
+            FlinkDeployment deployment, SuspendMode suspendMode, Configuration configuration)
             throws Exception {
-        cancelJob(deployment, upgradeMode, configuration, false);
+        return cancelJob(deployment, suspendMode, configuration, false);
     }
 
     @Override
@@ -128,12 +129,6 @@ public class NativeFlinkService extends AbstractFlinkService {
                 .inNamespace(namespace)
                 .withLabels(KubernetesUtils.getJobManagerSelectors(clusterId))
                 .list();
-    }
-
-    @Override
-    protected PodList getTmPodList(String namespace, String clusterId) {
-        // Native mode does not manage TaskManager
-        return new PodList();
     }
 
     protected void submitClusterInternal(Configuration conf) throws Exception {
@@ -164,12 +159,15 @@ public class NativeFlinkService extends AbstractFlinkService {
                         .inNamespace(namespace)
                         .withName(KubernetesUtils.getDeploymentName(clusterId));
 
-        var remainingTimeout =
-                scaleJmToZeroBlocking(
-                        jmDeployment,
-                        namespace,
-                        clusterId,
-                        operatorConfig.getFlinkShutdownClusterTimeout());
+        var remainingTimeout = operatorConfig.getFlinkShutdownClusterTimeout();
+
+        // We shut down the JobManager first in the (default) Foreground propagation case to have a
+        // cleaner exit
+        if (deletionPropagation == DeletionPropagation.FOREGROUND) {
+            remainingTimeout =
+                    shutdownJobManagersBlocking(
+                            jmDeployment, namespace, clusterId, remainingTimeout);
+        }
         deleteDeploymentBlocking("JobManager", jmDeployment, deletionPropagation, remainingTimeout);
     }
 
@@ -264,7 +262,7 @@ public class NativeFlinkService extends AbstractFlinkService {
 
         var status = resource.getStatus();
         if (ReconciliationUtils.isJobInTerminalState(status)
-                || JobStatus.RECONCILING.name().equals(status.getJobStatus().getState())) {
+                || JobStatus.RECONCILING.equals(status.getJobStatus().getState())) {
             LOG.info("Job in terminal or reconciling state cannot be scaled in-place");
             return false;
         }
@@ -306,34 +304,42 @@ public class NativeFlinkService extends AbstractFlinkService {
     }
 
     /**
-     * Scale JM deployment to zero to gracefully stop all JM instances before any TMs are stopped.
-     * This avoids race conditions between JM shutdown and TM shutdown / failure handling.
+     * Shut down JobManagers gracefully by scaling JM deployment to zero. This avoids race
+     * conditions between JM shutdown and TM shutdown / failure handling.
      *
      * @param jmDeployment
      * @param namespace
      * @param clusterId
-     * @param timeout
+     * @param remainingTimeout
      * @return Remaining timeout after the operation.
      */
-    private Duration scaleJmToZeroBlocking(
+    private Duration shutdownJobManagersBlocking(
             EditReplacePatchable<Deployment> jmDeployment,
             String namespace,
             String clusterId,
-            Duration timeout) {
-        return deleteBlocking(
-                "Scaling JobManager Deployment to zero",
-                () -> {
-                    try {
-                        jmDeployment.patch(PatchContext.of(PatchType.JSON_MERGE), SCALE_TO_ZERO);
-                    } catch (Exception ignore) {
-                        // Ignore all errors here as this is an optional step
-                        return null;
-                    }
-                    return kubernetesClient
-                            .pods()
-                            .inNamespace(namespace)
-                            .withLabels(KubernetesUtils.getJobManagerSelectors(clusterId));
-                },
-                timeout);
+            Duration remainingTimeout) {
+
+        // We use only half of the shutdown timeout but at most one minute as the main point
+        // here is to initiate JM shutdown before the TMs
+        var jmShutdownTimeout =
+                ObjectUtils.min(JM_SHUTDOWN_MAX_WAIT, remainingTimeout.dividedBy(2));
+        var remaining =
+                deleteBlocking(
+                        "Scaling JobManager Deployment to zero",
+                        () -> {
+                            try {
+                                jmDeployment.patch(
+                                        PatchContext.of(PatchType.JSON_MERGE), SCALE_TO_ZERO);
+                            } catch (Exception ignore) {
+                                // Ignore all errors here as this is an optional step
+                                return null;
+                            }
+                            return kubernetesClient
+                                    .pods()
+                                    .inNamespace(namespace)
+                                    .withLabels(KubernetesUtils.getJobManagerSelectors(clusterId));
+                        },
+                        jmShutdownTimeout);
+        return remainingTimeout.minus(jmShutdownTimeout).plus(remaining);
     }
 }
